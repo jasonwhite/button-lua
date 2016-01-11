@@ -32,7 +32,9 @@ touch -- "a/foo.c" \
          "c/baz.h" \
          "c/1/foo.cc" \
          "c/2/bar.cc" \
-         "c/3/baz.cc" \
+         "c/3/baz.cc"
+
+ls -lR
 
 bblua $script -o /dev/null
 
