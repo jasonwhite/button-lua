@@ -11,7 +11,7 @@ TARGET=bblua
 INCLUDE_PATHS=-Icontrib/lua/include
 LIB_PATHS=-Lcontrib/lua/lib
 
-CXXFLAGS=-g -Wall -Werror
+CXXFLAGS=-g -Wall -Werror -D__STDC_LIMIT_MACROS
 
 all: $(TARGET) luaminify
 
