@@ -1,2 +1,6 @@
 language: cpp
 script: ./contrib/lua.sh && make && make test
+
+compiler:
+  - gcc
+  - clang
