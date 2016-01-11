@@ -10,6 +10,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -203,7 +204,19 @@ void glob(path::Path path, path::Path pattern,
     while ((entry = readdir(dir))) {
         const char* name = entry->d_name;
         size_t nameLength = strlen(entry->d_name);
-        bool isDir = entry->d_type == DT_DIR;
+
+        bool isDir;
+
+        if (entry->d_type == DT_UNKNOWN) {
+            struct stat statbuf;
+            if (fstatat(dirfd(dir), entry->d_name, &statbuf, 0) == 0)
+                isDir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
+            else
+                isDir = false;
+        }
+        else {
+            isDir = entry->d_type == DT_DIR;
+        }
 
         if (isHiddenDir(name, nameLength))
             continue;
@@ -239,7 +252,19 @@ void globRecursive(std::string& path, GlobCallback callback, void* data) {
     while ((entry = readdir(dir))) {
         const char* name = entry->d_name;
         size_t nameLength = strlen(entry->d_name);
-        bool isDir = entry->d_type == DT_DIR;
+
+        bool isDir;
+
+        if (entry->d_type == DT_UNKNOWN) {
+            struct stat statbuf;
+            if (fstatat(dirfd(dir), entry->d_name, &statbuf, 0) == 0)
+                isDir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
+            else
+                isDir = false;
+        }
+        else {
+            isDir = entry->d_type == DT_DIR;
+        }
 
         if (isHiddenDir(name, nameLength))
             continue;
