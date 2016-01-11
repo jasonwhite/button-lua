@@ -34,8 +34,6 @@ touch -- "a/foo.c" \
          "c/2/bar.cc" \
          "c/3/baz.cc"
 
-ls -lR
-
 bblua $script -o /dev/null
 
 popd
