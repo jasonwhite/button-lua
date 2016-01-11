@@ -14,7 +14,7 @@ trap teardown 0
 
 script=$(pwd)/glob.lua
 
-pushd $tempdir
+cd $tempdir
 
 mkdir -- "a" \
          "b" \
@@ -35,5 +35,3 @@ touch -- "a/foo.c" \
          "c/3/baz.cc"
 
 bblua $script -o /dev/null
-
-popd
