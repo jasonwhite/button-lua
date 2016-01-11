@@ -1,4 +1,7 @@
-# Lua Build Descriptions for Brilliant Build
+[buildbadge]: https://travis-ci.org/jasonwhite/brilliant-build-lua.svg?branch=master
+[buildstatus]: https://travis-ci.org/jasonwhite/brilliant-build-lua
+
+# Lua Build Descriptions for Brilliant Build [![Build Status][buildbadge]][buildstatus]
 
 A tool to generate build descriptions from Lua scripts that are suitable for
 input to [Brilliant Build][].
