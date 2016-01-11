@@ -26,7 +26,7 @@ src/embedded/%.c: scripts/%.lua
 src/embedded.cc.o: $(LUA_SCRIPTS_C)
 
 $(TARGET): $(OBJECTS) contrib/lua/lib/liblua.a
-	${CXX} $(OBJECTS) $(LIB_PATHS) -ldl -llua -o $@
+	${CXX} $(OBJECTS) $(LIB_PATHS) -llua -o $@
 
 contrib/lua/lib/liblua.a:
 	./contrib/lua.sh

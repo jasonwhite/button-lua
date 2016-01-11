@@ -17,7 +17,7 @@ cc.library {
         "!contrib/lua-5.3.2/src/luac.c",
         },
     compiler_opts = {"-std=gnu99", "-O2", "-Wall", "-Wextra", "-DLUA_COMPAT_5_2"},
-    defines = {"LUA_USE_LINUX"},
+    defines = {"LUA_USE_POSIX"},
 }
 
 cc.binary {
