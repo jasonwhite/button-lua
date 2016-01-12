@@ -1,5 +1,5 @@
-[buildbadge]: https://travis-ci.org/jasonwhite/brilliant-build-lua.svg?branch=master
-[buildstatus]: https://travis-ci.org/jasonwhite/brilliant-build-lua
+[buildbadge]: https://travis-ci.org/jasonwhite/bblua.svg?branch=master
+[buildstatus]: https://travis-ci.org/jasonwhite/bblua
 
 # Lua Build Descriptions for Brilliant Build [![Build Status][buildbadge]][buildstatus]
 
