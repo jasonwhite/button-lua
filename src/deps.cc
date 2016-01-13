@@ -10,52 +10,62 @@
 
 #include <stdlib.h>
 
-ImplicitDeps::ImplicitDeps() : _f(NULL) {
+ImplicitDeps::ImplicitDeps() : _f_inputs(NULL), _f_outputs(NULL) {
+    const char* var;
     int fd;
-    const char* var = getenv("BB_DEPS");
-    if (var && (fd = atoi(var))) {
-        _f = fdopen(fd, "a");
-    }
+
+    var = getenv("BB_INPUTS");
+    if (var && (fd = atoi(var)))
+        _f_inputs = fdopen(fd, "a");
+
+    var = getenv("BB_OUTPUTS");
+    if (var && (fd = atoi(var)))
+        _f_outputs = fdopen(fd, "a");
 }
 
 ImplicitDeps::~ImplicitDeps() {
-    if (_f) fclose(_f);
+    if (_f_inputs)  fclose(_f_inputs);
+    if (_f_outputs) fclose(_f_outputs);
 }
 
 bool ImplicitDeps::hasParent() const {
-    return _f != NULL;
+    return _f_inputs != NULL || _f_outputs != NULL;
 }
 
-void ImplicitDeps::add(const Dependency& dep) {
-    if (!_f) return;
+void ImplicitDeps::addInput(const Dependency& dep) {
+    if (!_f_inputs) return;
 
-    fwrite(&dep, sizeof(dep) + dep.length, 1, _f);
+    fwrite(&dep, sizeof(dep) + dep.length, 1, _f_inputs);
 }
 
-void ImplicitDeps::addInputFile(const char* name, size_t length) {
-    if (!_f) return;
+void ImplicitDeps::addOutput(const Dependency& dep) {
+    if (!_f_outputs) return;
+
+    fwrite(&dep, sizeof(dep) + dep.length, 1, _f_outputs);
+}
+
+void ImplicitDeps::addInput(const char* name, size_t length) {
+    if (!_f_inputs) return;
 
     if (length > UINT16_MAX)
         length = UINT16_MAX;
 
     Dependency dep = {0};
-    dep.output = 0;
     dep.length = (uint16_t)length;
 
-    fwrite(&dep, sizeof(dep), 1, _f);
-    fwrite(name, 1, dep.length, _f);
+    fwrite(&dep, sizeof(dep), 1, _f_inputs);
+    fwrite(name, 1, dep.length, _f_inputs);
 }
 
-void ImplicitDeps::addOutputFile(const char* name, size_t length) {
-    if (!_f) return;
+void ImplicitDeps::addOutput(const char* name, size_t length) {
+    if (!_f_outputs) return;
 
     if (length > UINT16_MAX)
         length = UINT16_MAX;
 
     Dependency dep = {0};
-    dep.output = 1;
     dep.length = (uint16_t)length;
 
-    fwrite(&dep, sizeof(dep), 1, _f);
-    fwrite(name, 1, dep.length, _f);
+    fwrite(&dep, sizeof(dep), 1, _f_outputs);
+    fwrite(name, 1, dep.length, _f_outputs);
 }

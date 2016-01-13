@@ -19,20 +19,9 @@
 struct Dependency {
 
     /**
-     * Set to 0 if this dependency is an input to this task, 1 if an output.
-     */
-    uint16_t output : 1;
-
-    /**
-     * Currently unused. May be used when additional resource types are added
-     * (such as environment variables). For now, always set this to 0.
-     */
-    uint16_t type : 15;
-
-    /**
      * Length of the name.
      */
-    uint16_t length;
+    uint32_t length;
 
     /**
      * Timestamp of the resource. If unknown, this should be set to 0. In such a
@@ -76,7 +65,8 @@ struct Dependency {
  */
 class ImplicitDeps {
 private:
-    FILE* _f;
+    FILE* _f_inputs;
+    FILE* _f_outputs;
 
 public:
     ImplicitDeps();
@@ -90,11 +80,12 @@ public:
     /**
      * Adds the given dependency.
      */
-    void add(const Dependency& dep);
+    void addInput(const Dependency& dep);
+    void addOutput(const Dependency& dep);
 
     /**
      * Adds a dependency by name only.
      */
-    void addInputFile(const char* name, size_t length);
-    void addOutputFile(const char* name, size_t length);
+    void addInput(const char* name, size_t length);
+    void addOutput(const char* name, size_t length);
 };

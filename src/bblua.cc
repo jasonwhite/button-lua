@@ -80,7 +80,7 @@ int publish_input(lua_State* L) {
     const char* path = luaL_checklstring(L, 1, &len);
 
     if (deps)
-        deps->addInputFile(path, len);
+        deps->addInput(path, len);
 
     return 0;
 }
