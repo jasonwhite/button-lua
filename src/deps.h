@@ -19,11 +19,6 @@
 struct Dependency {
 
     /**
-     * Length of the name.
-     */
-    uint32_t length;
-
-    /**
      * Timestamp of the resource. If unknown, this should be set to 0. In such a
      * case, the parent build system will compute the value when needed. This is
      * used by the parent build system to determine if the checksum needs to be
@@ -42,6 +37,11 @@ struct Dependency {
      * this is the checksum of the paths in the sorted directory listing.
      */
     uint8_t checksum[32];
+
+    /**
+     * Length of the name.
+     */
+    uint32_t length;
 
     /**
      * Name of the resource that can be used to lookup the data. Length is given
