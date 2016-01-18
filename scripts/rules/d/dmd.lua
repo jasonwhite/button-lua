@@ -186,7 +186,10 @@ end
 
 function _library:rules()
     if self.shared then
-        self.linker_opts = table.join(self.linker_opts, "-shared")
+        self.compiler_opts = table.join(self.compiler_opts, "-fPIC")
+        self.linker_opts = table.join(self.linker_opts, {
+            "-shared", "-defaultlib=libphobos2.so"
+            })
     else
         self.linker_opts = table.join(self.linker_opts, "-lib")
     end
