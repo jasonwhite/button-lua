@@ -110,3 +110,15 @@ assert(path.getext("/foo") == "")
 assert(path.getext("/foo.") == ".")
 assert(path.getext("/foo.bar") == ".bar")
 assert(path.getext("/.foo.bar") == ".bar")
+
+--[[
+    path.getext
+]]
+
+assert(path.setext("", ".c") == ".c")
+assert(path.setext("/", ".c") == "/.c")
+assert(path.setext("foo", ".c") == "foo.c")
+assert(path.setext("foo.", ".c") == "foo.c")
+assert(path.setext("foo.bar", ".c") == "foo.c")
+assert(path.setext(".foo.bar", ".c") == ".foo.c")
+assert(path.setext(".foo", ".c") == ".foo.c")

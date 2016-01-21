@@ -257,6 +257,20 @@ static int path_getext(lua_State* L) {
     return 1;
 }
 
+static int path_setext(lua_State* L) {
+    size_t pathlen, extlen;
+    const char* path = luaL_checklstring(L, 1, &pathlen);
+    const char* ext = luaL_checklstring(L, 2, &extlen);
+
+    path::Split s = path::splitExtension(path::Path(path, pathlen));
+
+    lua_pushlstring(L, s.head.path, s.head.length);
+    lua_pushlstring(L, ext, extlen);
+    lua_concat(L, 2);
+
+    return 1;
+}
+
 static int path_norm(lua_State* L) {
 
     //size_t len;
@@ -277,6 +291,7 @@ static const luaL_Reg pathlib[] = {
     {"dirname", path_dirname},
     {"splitext", path_splitext},
     {"getext", path_getext},
+    {"setext", path_setext},
     {"norm", path_norm},
     {NULL, NULL}
 };
