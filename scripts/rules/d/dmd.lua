@@ -169,7 +169,7 @@ function common:rules()
         rule {
             inputs = objects,
             task = table.join(args, linker_opts, objects),
-            outputs = table.join(objects, {output}),
+            outputs = table.join({output}),
         }
     end
 end
