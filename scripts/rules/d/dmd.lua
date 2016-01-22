@@ -32,7 +32,7 @@ local common = {
     opts = {"-color=on"};
 
     -- Path to the bin directory
-    bindir = ".";
+    bindir = "";
 
     -- Build all source on the same command line. Otherwise, each source is
     -- compiled separately and finally linked separately. In general, combined
@@ -206,7 +206,7 @@ function _test:rules()
 
     rule {
         inputs  = {test_runner},
-        task    = {test_runner},
+        task    = {path.join(".", test_runner)},
         outputs = {},
     }
 end
