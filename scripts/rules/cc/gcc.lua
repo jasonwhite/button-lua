@@ -71,6 +71,10 @@ local function compile(self)
 
     local compiler_opts = {}
 
+    for _,v in ipairs(self.warnings) do
+        table.insert(compiler_opts, "-W".. v)
+    end
+
     for _,v in ipairs(self.includes) do
         table.append(compiler_opts, {"-I", path.join(SCRIPT_DIR, v)})
     end
@@ -129,6 +133,9 @@ local common = {
 
     -- Extra linker options.
     linker_opts = {},
+
+    -- Warnings to compile with.
+    warnings = {},
 }
 
 function common:path()
