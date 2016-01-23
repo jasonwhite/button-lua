@@ -105,7 +105,7 @@ setmetatable(_test, {__index = common})
 Generates the low-level rules required to build a generic D library/binary.
 ]]
 function common:rules()
-    local objdir = self.objdir or path.join("obj", self.name)
+    local objdir = self.objdir or path.join("obj", self:basename())
 
     local args = table.join(self.prefix, self.compiler, self.opts)
 
