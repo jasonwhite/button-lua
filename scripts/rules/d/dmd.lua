@@ -17,7 +17,7 @@ local function is_d_source(src)
 end
 
 local function to_object(objdir, src)
-    return path.join(objdir, src .. ".o")
+    return path.setext(path.join(objdir, src), ".o")
 end
 
 --[[
@@ -109,7 +109,7 @@ function common:rules()
 
     local args = table.join(self.prefix, self.compiler, self.opts)
 
-    local compiler_opts = {"-op"}
+    local compiler_opts = {"-op", "-od".. objdir}
 
     for _,v in ipairs(self.imports) do
         table.insert(compiler_opts, "-I" .. path.join(SCRIPT_DIR, v))
@@ -153,7 +153,7 @@ function common:rules()
         rule {
             inputs  = inputs,
             task    = table.join(args, compiler_opts, linker_opts, inputs),
-            outputs = table.join(objects, {output}),
+            outputs = {to_object(objdir, output), output},
         }
     else
         -- Individual compilation
