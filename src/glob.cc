@@ -203,13 +203,13 @@ void glob(path::Path path, path::Path pattern,
     // TODO: Implement this for windows, too.
     while ((entry = readdir(dir))) {
         const char* name = entry->d_name;
-        size_t nameLength = strlen(entry->d_name);
+        size_t nameLength = strlen(name);
 
         bool isDir;
 
         if (entry->d_type == DT_UNKNOWN) {
             struct stat statbuf;
-            if (fstatat(dirfd(dir), entry->d_name, &statbuf, 0) == 0)
+            if (fstatat(dirfd(dir), name, &statbuf, 0) == 0)
                 isDir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
             else
                 isDir = false;
@@ -222,7 +222,7 @@ void glob(path::Path path, path::Path pattern,
             continue;
 
         if (globMatch(path::Path(name, nameLength), pattern)) {
-            path::join(buf, path::Path(entry->d_name, nameLength));
+            path::join(buf, path::Path(name, nameLength));
 
             callback(path::Path(buf.data(), buf.size()), isDir, data);
 
@@ -251,13 +251,13 @@ void globRecursive(std::string& path, GlobCallback callback, void* data) {
     // TODO: Implement this for windows, too.
     while ((entry = readdir(dir))) {
         const char* name = entry->d_name;
-        size_t nameLength = strlen(entry->d_name);
+        size_t nameLength = strlen(name);
 
         bool isDir;
 
         if (entry->d_type == DT_UNKNOWN) {
             struct stat statbuf;
-            if (fstatat(dirfd(dir), entry->d_name, &statbuf, 0) == 0)
+            if (fstatat(dirfd(dir), name, &statbuf, 0) == 0)
                 isDir = (statbuf.st_mode & S_IFMT) == S_IFDIR;
             else
                 isDir = false;
@@ -269,7 +269,7 @@ void globRecursive(std::string& path, GlobCallback callback, void* data) {
         if (isHiddenDir(name, nameLength))
             continue;
 
-        path::join(path, path::Path(entry->d_name, nameLength));
+        path::join(path, path::Path(name, nameLength));
 
         callback(path::Path(path.data(), path.size()), isDir, data);
 
