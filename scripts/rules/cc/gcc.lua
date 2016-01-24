@@ -76,20 +76,21 @@ local function compile(self)
     end
 
     for _,v in ipairs(self.includes) do
-        table.append(compiler_opts, {"-I", path.join(SCRIPT_DIR, v)})
+        table.insert(compiler_opts, "-I".. path.join(SCRIPT_DIR, v))
     end
 
     for _,v in ipairs(self.defines) do
-        table.append(compiler_opts, {"-D", v})
+        table.insert(compiler_opts, "-D".. v)
     end
 
     table.append(compiler_opts, self.compiler_opts)
 
+    local headers = table.filter(self.srcs, is_header)
     local sources, objects = get_sources_and_objects(self.srcs, objdir)
 
     for i,src in ipairs(sources) do
         rule {
-            inputs  = {src},
+            inputs  = table.join(headers, {src}),
             task    = table.join(args, compiler_opts, {"-c", src, "-o", objects[i]}),
             outputs = {objects[i]},
         }

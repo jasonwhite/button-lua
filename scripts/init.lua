@@ -218,3 +218,18 @@ function table.contains(t, value)
 
     return false
 end
+
+--[[
+Returns a new table with only the items that the predicate returns true for.
+]]
+function table.filter(t, pred)
+    local filtered = {}
+
+    for _,v in ipairs(t) do
+        if pred(v) then
+            table.insert(filtered, v)
+        end
+    end
+
+    return filtered
+end
