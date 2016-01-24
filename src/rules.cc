@@ -83,9 +83,20 @@ int Rules::add(lua_State *L) {
 
     fputs("\n    {", _f);
 
-    fieldToJSON(L, 1, "inputs", 0);
-    fieldToJSON(L, 1, "task", 1);
-    fieldToJSON(L, 1, "outputs", 2);
+    lua_getfield(L, 1, "inputs");
+    listToJSON(L, "inputs", 0);
+
+    lua_getfield(L, 1, "task");
+    listToJSON(L, "task", 1);
+
+    lua_getfield(L, 1, "outputs");
+    listToJSON(L, "outputs", 2);
+
+    // Optional working directory
+    if (lua_getfield(L, 1, "cwd") != LUA_TNIL)
+    {
+        stringToJSON(L, "cwd", 3);
+    }
 
     fputs("\n    }", _f);
 
@@ -94,7 +105,34 @@ int Rules::add(lua_State *L) {
     return 0;
 }
 
-int Rules::fieldToJSON(lua_State *L, int tbl, const char* field, size_t i) {
+int Rules::stringToJSON(lua_State *L, const char* field, size_t i) {
+
+    if (i > 0)
+        fputs(",", _f);
+
+    fprintf(_f, "\n        \"%s\": ", field);
+
+    size_t len;
+    const char* s;
+
+    s = lua_tolstring(L, -1, &len);
+    if (!s)
+        return luaL_error(L, "bad type for field '%s' (string expected, got %s)",
+                field, luaL_typename(L, -1));
+
+    json_escaped_string(L, s, len);
+    s = lua_tolstring(L, -1, &len);
+
+    fputs("\"", _f);
+    fwrite(s, 1, len, _f);
+    fputs("\"", _f);
+
+    lua_pop(L, 2); // Pop escaped string and table field
+
+    return 0;
+}
+
+int Rules::listToJSON(lua_State *L, const char* field, size_t i) {
 
     // Which element we're on.
     size_t element = 0;
@@ -102,54 +140,52 @@ int Rules::fieldToJSON(lua_State *L, int tbl, const char* field, size_t i) {
     if (i > 0)
         fputs(",", _f);
 
-    fprintf(_f, "\n        \"%s\": [", field);
+    fprintf(_f, "\n        \"%s\": ", field);
 
-    if (lua_getfield(L, tbl, field) == LUA_TTABLE) {
+    size_t len;
+    const char* s;
 
-        size_t len; // Length of the string
-
-        for (int i = 1; ; ++i) {
-
-            if (lua_rawgeti(L, -1, i) == LUA_TNIL) {
-                lua_pop(L, 1);
-                break;
-            }
-
-            const char* s = lua_tolstring(L, -1, &len);
-            if (s) {
-                if (element > 0)
-                    fputs(", ", _f);
-
-                json_escaped_string(L, s, len);
-                const char* escaped = lua_tolstring(L, -1, &len);
-
-                fputs("\"", _f);
-                fwrite(escaped, 1, len, _f);
-                fputs("\"", _f);
-
-                lua_pop(L, 1); // Pop escaped string
-
-                ++element;
-            }
-            else {
-                return luaL_error(L,
-                        "bad type in table for field '%s' (string expected, got %s)",
-                        field, luaL_typename(L, -1));
-            }
-
-            lua_pop(L, 1); // Pop table element
-        }
-    }
-    else {
+    if (lua_type(L, -1) != LUA_TTABLE)
         return luaL_error(L, "bad type for field '%s' (table expected, got %s)",
                 field, luaL_typename(L, -1));
+
+    fputs("[", _f);
+
+    for (int i = 1; ; ++i) {
+
+        if (lua_rawgeti(L, -1, i) == LUA_TNIL) {
+            lua_pop(L, 1);
+            break;
+        }
+
+        s = lua_tolstring(L, -1, &len);
+        if (!s)
+            return luaL_error(L,
+                    "bad type in table for field '%s' (string expected, got %s)",
+                    field, luaL_typename(L, -1));
+
+        if (element > 0)
+            fputs(", ", _f);
+
+        json_escaped_string(L, s, len);
+        const char* escaped = lua_tolstring(L, -1, &len);
+
+        fputs("\"", _f);
+        fwrite(escaped, 1, len, _f);
+        fputs("\"", _f);
+
+        lua_pop(L, 1); // Pop escaped string
+
+        ++element;
+
+        lua_pop(L, 1); // Pop table element
     }
 
-    lua_pop(L, 1);
-
     fputs("]", _f);
+
+    lua_pop(L, 1); // Pop table field
 
     return 0;
 }
 
-}
+} // namespace bblua

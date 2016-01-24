@@ -16,6 +16,13 @@ namespace bblua {
 
 class Rules
 {
+private:
+    // File handle to write to.
+    FILE* _f;
+
+    // Number of rules.
+    size_t _n;
+
 public:
     Rules(FILE* f);
     ~Rules();
@@ -26,14 +33,8 @@ public:
     int add(lua_State *L);
 
 private:
-    int fieldToJSON(lua_State *L, int tbl, const char* field, size_t i);
-
-private:
-    // File handle to write to.
-    FILE* _f;
-
-    // Number of rules.
-    size_t _n;
+    int stringToJSON(lua_State* L, const char* field, size_t i);
+    int listToJSON(lua_State* L, const char* field, size_t i);
 };
 
 
