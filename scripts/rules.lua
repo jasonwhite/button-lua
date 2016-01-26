@@ -53,7 +53,7 @@ end
     Resolve dependencies. For all targets, the .rules method is called with the
     set of dependencies.
 ]]
-function resolve()
+local function resolve()
 
     local index = {}
 
