@@ -211,17 +211,34 @@ function _test:rules()
     }
 end
 
-local function binary(opts)
-    setmetatable(opts, _binary_mt)
+local template = {
+    binary = function(opts)
+        return setmetatable(opts, _binary_mt)
+    end,
+
+    library = function(opts)
+        return setmetatable(opts, _library_mt)
+    end,
+
+    test = function(opts)
+        return setmetatable(opts, _test_mt)
+    end,
+}
+
+local function binary(opts, base)
+    base = base or _binary_mt
+    setmetatable(opts, base)
     return rules.add(opts)
 end
 
-local function library(opts)
-    setmetatable(opts, _library_mt)
+local function library(opts, base)
+    base = base or _library_mt
+    setmetatable(opts, base)
     return rules.add(opts)
 end
 
-local function test(opts)
+local function test(opts, base)
+    base = base or _test_mt
     setmetatable(opts, _test_mt)
     return rules.add(opts)
 end
@@ -236,4 +253,6 @@ return {
     binary = binary,
     library = library,
     test = test,
+
+    template = template,
 }
