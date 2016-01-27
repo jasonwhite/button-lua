@@ -157,8 +157,9 @@ end
 
 setmetatable(_binary, {__index = common})
 
-local function binary(opts)
-    setmetatable(opts, _binary_mt)
+local function binary(opts, base)
+    base = base or _binary_mt
+    setmetatable(opts, base)
     return rules.add(opts)
 end
 
@@ -179,8 +180,9 @@ end
 
 setmetatable(_library, {__index = common})
 
-local function library(opts)
-    setmetatable(opts, _library_mt)
+local function library(opts, base)
+    base = base or _library_mt
+    setmetatable(opts, base)
     return rules.add(opts)
 end
 
@@ -263,6 +265,16 @@ function _library:rules()
     end
 end
 
+local template = {
+    binary = function(opts)
+        return setmetatable(opts, _binary_mt)
+    end,
+
+    library = function(opts)
+        return setmetatable(opts, _library_mt)
+    end,
+}
+
 return {
     toolchain = toolchain,
     common = common,
@@ -272,4 +284,6 @@ return {
 
     binary  = binary,
     library = library,
+
+    template = template,
 }

@@ -239,7 +239,7 @@ end
 
 local function test(opts, base)
     base = base or _test_mt
-    setmetatable(opts, _test_mt)
+    setmetatable(opts, base)
     return rules.add(opts)
 end
 
