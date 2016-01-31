@@ -98,6 +98,12 @@ int Rules::add(lua_State *L) {
         stringToJSON(L, "cwd", 3);
     }
 
+    // Optional task display
+    if (lua_getfield(L, 1, "display") != LUA_TNIL)
+    {
+        stringToJSON(L, "display", 4);
+    }
+
     fputs("\n    }", _f);
 
     ++_n;

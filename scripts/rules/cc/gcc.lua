@@ -93,6 +93,7 @@ local function compile(self)
             inputs  = table.join(headers, {src}),
             task    = table.join(args, compiler_opts, {"-c", src, "-o", objects[i]}),
             outputs = {objects[i]},
+            display = "cc ".. src,
         }
     end
 
@@ -209,6 +210,7 @@ function common:rules()
         inputs  = objects,
         task    = table.join(args, linker_opts, objects),
         outputs = {output},
+        display = "ld ".. self:basename(),
     }
 end
 
@@ -243,6 +245,7 @@ function _library:rules()
             inputs  = objects,
             task    = table.join(self.prefix, {self.toolchain.ar, "rcsD"}, output, objects),
             outputs = {output},
+            display = "ar ".. self:basename(),
         }
     else
         local linker = has_cpp_source(self.srcs) and "g++" or "gcc"
@@ -261,6 +264,7 @@ function _library:rules()
             inputs  = objects,
             task    = table.join(args, opts, objects),
             outputs = {output},
+            display = "ld ".. self:basename(),
         }
     end
 end

@@ -154,6 +154,7 @@ function common:rules()
             inputs  = inputs,
             task    = table.join(args, compiler_opts, linker_opts, inputs),
             outputs = {to_object(objdir, output), output},
+            display = "dmd ".. self:basename(),
         }
     else
         -- Individual compilation
@@ -163,6 +164,7 @@ function common:rules()
                 task    = table.join(args, compiler_opts,
                     {"-c", src, "-of".. objects[i]}),
                 outputs = {objects[i]},
+                display = "dmd ".. src,
             }
         end
 
@@ -170,6 +172,7 @@ function common:rules()
             inputs = objects,
             task = table.join(args, linker_opts, objects),
             outputs = table.join({output}),
+            display = "dmd ".. self:basename(),
         }
     end
 end
@@ -208,6 +211,7 @@ function _test:rules()
         inputs  = {test_runner},
         task    = {path.join(".", test_runner)},
         outputs = {},
+        display = "dmd ".. self:basename(),
     }
 end
 
