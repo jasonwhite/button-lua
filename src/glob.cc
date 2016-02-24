@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <unistd.h>
 
@@ -344,24 +345,55 @@ void fs_globcallback_exclude(path::Path path, bool isDir, void* data) {
 }
 
 /**
+ * TEMPORARY HACK
+ *
+ * Helper class to change directories before globbing.
+ *
+ * FIXME: Doesn't handle errors correctly.
+ */
+class AutoWorkDir
+{
+private:
+    int _cur;
+
+public:
+    AutoWorkDir(const char *dir)
+    {
+        _cur = open(".", O_DIRECTORY);
+
+        printf("Changing dir to %s\n", dir);
+
+        if (_cur != -1)
+            chdir(dir);
+    }
+
+    ~AutoWorkDir()
+    {
+        printf("Changing dir back\n");
+        if (_cur != -1)
+            fchdir(_cur);
+    }
+};
+
+/**
  * Lua wrapper to prepend the current script directory to the requested path.
  */
 void glob(lua_State* L, path::Path path, GlobCallback callback, void* data) {
 
-    // Join the SCRIPT_DIR with this path.
-    lua_getglobal(L, "path");
-    lua_getfield(L, -1, "join");
     lua_getglobal(L, "SCRIPT_DIR");
-    lua_pushlstring(L, path.path, path.length);
-    lua_call(L, 2, 1);
 
-    size_t len;
-    const char* scriptDir = lua_tolstring(L, -1, &len);
-
+    const char* scriptDir = lua_tostring(L, -1);
     if (scriptDir)
-        glob(path::Path(scriptDir, len), callback, data);
+    {
+        AutoWorkDir autoWorkDir = AutoWorkDir(scriptDir);
+        glob(path, callback, data);
+    }
+    else
+    {
+        glob(path, callback, data);
+    }
 
-    lua_pop(L, 2); // Pop new path and path table
+    lua_pop(L, 1); // Pop SCRIPT_DIR
 }
 
 } // anonymous namespace
