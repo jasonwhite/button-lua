@@ -52,8 +52,9 @@ local function get_sources_and_objects(srcs, objdir)
     local objects = {}
     for _,v in ipairs(srcs) do
         if is_source(v) then
-            table.insert(sources, v)
-            table.insert(objects, to_object(objdir, v))
+            local src = path.join(SCRIPT_DIR, v)
+            table.insert(sources, src)
+            table.insert(objects, to_object(objdir, src))
         end
     end
 
