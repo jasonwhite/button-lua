@@ -354,36 +354,6 @@ void fs_globcallback_exclude(path::Path path, bool isDir, void* data) {
 }
 
 /**
- * TEMPORARY HACK
- *
- * Helper class to change directories before globbing.
- *
- * FIXME: Doesn't handle errors correctly.
- */
-class AutoWorkDir
-{
-private:
-    int _cur;
-
-public:
-    AutoWorkDir(const char *dir)
-    {
-        _cur = open(".", O_DIRECTORY);
-        if (_cur != -1)
-            chdir(dir);
-    }
-
-    ~AutoWorkDir()
-    {
-        if (_cur != -1)
-        {
-            fchdir(_cur);
-            close(_cur);
-        }
-    }
-};
-
-/**
  * Lua wrapper to prepend the current script directory to the requested path.
  */
 void glob(lua_State* L, path::Path path, GlobCallback callback, void* data) {
