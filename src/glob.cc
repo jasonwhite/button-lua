@@ -353,25 +353,6 @@ void fs_globcallback_exclude(path::Path path, bool isDir, void* data) {
     paths->erase(std::string(path.path, path.length));
 }
 
-/**
- * Lua wrapper to prepend the current script directory to the requested path.
- */
-void glob(lua_State* L, path::Path path, GlobCallback callback, void* data) {
-
-    lua_getglobal(L, "SCRIPT_DIR");
-
-    const char* scriptDir = lua_tostring(L, -1);
-    int root = open(scriptDir ? scriptDir : ".", O_DIRECTORY);
-
-    if (root != -1)
-    {
-        glob(root, path, callback, data);
-        close(root);
-    }
-
-    lua_pop(L, 1); // Pop SCRIPT_DIR
-}
-
 } // anonymous namespace
 
 int lua_glob_match(lua_State* L) {
@@ -390,6 +371,20 @@ int lua_glob(lua_State* L) {
 
     int argc = lua_gettop(L);
 
+    lua_getglobal(L, "SCRIPT_DIR");
+
+    const char* scriptDir = lua_tostring(L, -1);
+    int root = open(scriptDir ? scriptDir : ".", O_DIRECTORY);
+
+    lua_pop(L, 1); // Pop SCRIPT_DIR
+
+    if (root == -1)
+    {
+        // Return an empty table
+        lua_newtable(L);
+        return 1;
+    }
+
     size_t len;
     const char* path;
 
@@ -406,9 +401,9 @@ int lua_glob(lua_State* L) {
                 path = lua_tolstring(L, -1, &len);
                 if (path) {
                     if (len > 0 && path[0] == '!')
-                        glob(L, path::Path(path+1, len-1), &fs_globcallback_exclude, &paths);
+                        glob(root, path::Path(path+1, len-1), &fs_globcallback_exclude, &paths);
                     else
-                        glob(L, path::Path(path, len), &fs_globcallback, &paths);
+                        glob(root, path::Path(path, len), &fs_globcallback, &paths);
                 }
 
                 lua_pop(L, 1); // Pop path
@@ -418,11 +413,13 @@ int lua_glob(lua_State* L) {
             path = luaL_checklstring(L, i, &len);
 
             if (len > 0 && path[0] == '!')
-                glob(L, path::Path(path+1, len-1), &fs_globcallback_exclude, &paths);
+                glob(root, path::Path(path+1, len-1), &fs_globcallback_exclude, &paths);
             else
-                glob(L, path::Path(path, len), &fs_globcallback, &paths);
+                glob(root, path::Path(path, len), &fs_globcallback, &paths);
         }
     }
+
+    close(root);
 
     // Construct the Lua table.
     lua_newtable(L);
