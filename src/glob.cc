@@ -371,7 +371,10 @@ public:
     {
         printf("Changing dir back\n");
         if (_cur != -1)
+        {
             fchdir(_cur);
+            close(_cur);
+        }
     }
 };
 
