@@ -174,6 +174,9 @@ bool isHiddenDir(const char* s, size_t len) {
 typedef void (*GlobCallback)(path::Path path, bool isDir, void* data);
 
 struct GlobClosure {
+    // File descriptor of the root directory we are globbing from.
+    int root;
+
     path::Path pattern;
 
     // Next callback
@@ -184,8 +187,10 @@ struct GlobClosure {
 /**
  * Helper function for listing a directory with the given pattern. If the
  * pattern is empty,
+ *
+ * TODO: Implement for Windows.
  */
-void glob(path::Path path, path::Path pattern,
+void glob(int root, path::Path path, path::Path pattern,
           GlobCallback callback, void* data) {
 
     std::string buf(path.path, path.length);
@@ -197,11 +202,12 @@ void glob(path::Path path, path::Path pattern,
     }
 
     struct dirent* entry;
-    DIR* dir = opendir(path.length > 0 ? buf.c_str() : ".");
+
+    int fd = openat(root, path.length > 0 ? buf.c_str() : ".", O_DIRECTORY);
+    DIR* dir = fdopendir(fd);
     if (!dir)
         return;
 
-    // TODO: Implement this for windows, too.
     while ((entry = readdir(dir))) {
         const char* name = entry->d_name;
         size_t nameLength = strlen(name);
@@ -236,20 +242,22 @@ void glob(path::Path path, path::Path pattern,
 
 /**
  * Helper function to recursively yield directories for the given path.
+ *
+ * TODO: Implement for Windows.
  */
-void globRecursive(std::string& path, GlobCallback callback, void* data) {
+void globRecursive(int root, std::string& path, GlobCallback callback, void* data) {
 
     size_t len = path.size();
 
     struct dirent* entry;
-    DIR* dir = opendir(len > 0 ? path.c_str() : ".");
+    int fd = openat(root, len > 0 ? path.c_str() : ".", O_DIRECTORY);
+    DIR* dir = fdopendir(fd);
     if (!dir)
         return;
 
     // "**" matches 0 or more directories and thus includes this one.
     callback(path::Path(path.data(), path.size()), true, data);
 
-    // TODO: Implement this for windows, too.
     while ((entry = readdir(dir))) {
         const char* name = entry->d_name;
         size_t nameLength = strlen(name);
@@ -275,7 +283,7 @@ void globRecursive(std::string& path, GlobCallback callback, void* data) {
         callback(path::Path(path.data(), path.size()), isDir, data);
 
         if (isDir)
-            globRecursive(path, callback, data);
+            globRecursive(root, path, callback, data);
 
         path.resize(len);
     }
@@ -286,14 +294,14 @@ void globRecursive(std::string& path, GlobCallback callback, void* data) {
 void globCallback(path::Path path, bool isDir, void* data) {
     if (isDir) {
         const GlobClosure* c = (const GlobClosure*)data;
-        glob(path, c->pattern, c->next, c->nextData);
+        glob(c->root, path, c->pattern, c->next, c->nextData);
     }
 }
 
 /**
  * Glob a directory.
  */
-void glob(path::Path path, GlobCallback callback, void* data = NULL) {
+void glob(int root, path::Path path, GlobCallback callback, void* data = NULL) {
 
     path::Split s = path::split(path);
 
@@ -301,19 +309,20 @@ void glob(path::Path path, GlobCallback callback, void* data = NULL) {
         // Directory name contains a glob pattern
 
         GlobClosure c;
+        c.root = root;
         c.pattern = s.tail;
         c.next = callback;
         c.nextData = data;
 
-        glob(s.head, &globCallback, &c);
+        glob(root, s.head, &globCallback, &c);
     }
     else if (isRecursiveGlob(s.tail)) {
         std::string buf(s.head.path, s.head.length);
-        globRecursive(buf, callback, data);
+        globRecursive(root, buf, callback, data);
     }
     else if (isGlobPattern(s.tail)) {
         // Only base name contains a glob pattern.
-        glob(s.head, s.tail, callback, data);
+        glob(root, s.head, s.tail, callback, data);
     }
     else {
         // No glob pattern in this path.
@@ -382,14 +391,12 @@ void glob(lua_State* L, path::Path path, GlobCallback callback, void* data) {
     lua_getglobal(L, "SCRIPT_DIR");
 
     const char* scriptDir = lua_tostring(L, -1);
-    if (scriptDir)
+    int root = open(scriptDir ? scriptDir : ".", O_DIRECTORY);
+
+    if (root != -1)
     {
-        AutoWorkDir autoWorkDir = AutoWorkDir(scriptDir);
-        glob(path, callback, data);
-    }
-    else
-    {
-        glob(path, callback, data);
+        glob(root, path, callback, data);
+        close(root);
     }
 
     lua_pop(L, 1); // Pop SCRIPT_DIR
