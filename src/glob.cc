@@ -360,16 +360,12 @@ public:
     AutoWorkDir(const char *dir)
     {
         _cur = open(".", O_DIRECTORY);
-
-        printf("Changing dir to %s\n", dir);
-
         if (_cur != -1)
             chdir(dir);
     }
 
     ~AutoWorkDir()
     {
-        printf("Changing dir back\n");
         if (_cur != -1)
         {
             fchdir(_cur);
