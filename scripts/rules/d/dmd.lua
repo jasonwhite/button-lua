@@ -112,11 +112,11 @@ function common:rules()
     local compiler_opts = {"-op", "-od".. objdir}
 
     for _,v in ipairs(self.imports) do
-        table.insert(compiler_opts, "-I" .. path.join(SCRIPT_DIR, v))
+        table.insert(compiler_opts, "-I" .. path.join(self.scriptdir, v))
     end
 
     for _,v in ipairs(self.string_imports) do
-        table.insert(compiler_opts, "-J" .. path.join(SCRIPT_DIR, v))
+        table.insert(compiler_opts, "-J" .. path.join(self.scriptdir, v))
     end
 
     for _,v in ipairs(self.versions) do
@@ -129,7 +129,7 @@ function common:rules()
     local objects = {}
     for _,v in ipairs(self.srcs) do
         if is_d_source(v) then
-            local src = path.join(SCRIPT_DIR, v)
+            local src = path.join(self.scriptdir, v)
             table.insert(sources, src)
             table.insert(objects, to_object(objdir, src))
         end

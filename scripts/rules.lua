@@ -27,6 +27,9 @@ local common = {
 
     -- List of source files
     srcs = {},
+
+    -- Location where this rule was created.
+    scriptdir = "",
 }
 
 --[[
@@ -44,7 +47,8 @@ end
 --[[
     Adds a target to the table.
 ]]
-function add(target)
+local function add(target)
+    target.scriptdir = SCRIPT_DIR
     table.insert(targets, target)
     return target
 end

@@ -47,14 +47,13 @@ end
 --[[
     Returns a list of filtered C/C++ sources and their corresponding objects.
 ]]
-local function get_sources_and_objects(srcs, objdir)
+local function get_sources_and_objects(scriptdir, srcs, objdir)
     local sources = {}
     local objects = {}
     for _,v in ipairs(srcs) do
         if is_source(v) then
-            local src = path.join(SCRIPT_DIR, v)
-            table.insert(sources, src)
-            table.insert(objects, to_object(objdir, src))
+            table.insert(sources, path.join(scriptdir, v))
+            table.insert(objects, to_object(path.join(scriptdir, objdir), v))
         end
     end
 
@@ -77,7 +76,7 @@ local function compile(self)
     end
 
     for _,v in ipairs(self.includes) do
-        table.insert(compiler_opts, "-I".. path.join(SCRIPT_DIR, v))
+        table.insert(compiler_opts, "-I".. path.join(self.scriptdir, v))
     end
 
     for _,v in ipairs(self.defines) do
@@ -87,7 +86,7 @@ local function compile(self)
     table.append(compiler_opts, self.compiler_opts)
 
     local headers = table.filter(self.srcs, is_header)
-    local sources, objects = get_sources_and_objects(self.srcs, objdir)
+    local sources, objects = get_sources_and_objects(self.scriptdir, self.srcs, objdir)
 
     for i,src in ipairs(sources) do
         rule {
