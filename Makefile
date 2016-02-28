@@ -8,8 +8,8 @@ LUA_SCRIPTS_C=$(patsubst scripts/%.lua, src/embedded/%.c, $(LUA_SCRIPTS))
 
 TARGET=bblua
 
-INCLUDE_PATHS=-Icontrib/lua/include
-LIB_PATHS=-Lcontrib/lua/lib
+INCLUDE_PATHS=-Isrc/lua/src
+LIB_PATHS=-Lsrc/lua/src
 
 CXXFLAGS=-g -Wall -Werror -D__STDC_LIMIT_MACROS
 
@@ -25,11 +25,11 @@ src/embedded/%.c: scripts/%.lua
 
 src/embedded.cc.o: $(LUA_SCRIPTS_C)
 
-$(TARGET): $(OBJECTS) contrib/lua/lib/liblua.a
+$(TARGET): $(OBJECTS) src/lua/src/liblua.a
 	${CXX} $(OBJECTS) $(LIB_PATHS) -llua -o $@
 
-contrib/lua/lib/liblua.a:
-	./contrib/lua.sh
+src/lua/src/liblua.a:
+	${MAKE} -C src/lua posix
 
 luaminify: tools/luaminify.cc.o
 	${CXX} $^ -o $@

@@ -8,7 +8,17 @@ Generates the build description.
 
 local cc = require "rules.cc"
 
-import "contrib/BUILD.lua"
+cc.library {
+    name = "lua:static",
+    static = true,
+    srcs = glob {
+        "src/lua/src/*.c",
+        "!src/lua/src/lua.c",
+        "!src/lua/src/luac.c",
+        },
+    compiler_opts = {"-std=gnu99", "-O2", "-Wall", "-Wextra", "-DLUA_COMPAT_5_2"},
+    defines = {"LUA_USE_POSIX"},
+}
 
 cc.binary {
     name = "bblua",
