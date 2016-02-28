@@ -47,13 +47,13 @@ end
 --[[
     Returns a list of filtered C/C++ sources and their corresponding objects.
 ]]
-local function get_sources_and_objects(scriptdir, srcs, objdir)
+local function get_sources_and_objects(srcs, objdir)
     local sources = {}
     local objects = {}
     for _,v in ipairs(srcs) do
         if is_source(v) then
-            table.insert(sources, path.join(scriptdir, v))
-            table.insert(objects, to_object(path.join(scriptdir, objdir), v))
+            table.insert(sources, v)
+            table.insert(objects, to_object(objdir, v))
         end
     end
 
@@ -86,13 +86,25 @@ local function compile(self)
     table.append(compiler_opts, self.compiler_opts)
 
     local headers = table.filter(self.srcs, is_header)
-    local sources, objects = get_sources_and_objects(self.scriptdir, self.srcs, objdir)
+    local sources, objects = get_sources_and_objects(
+        self.srcs,
+        path.join(self.scriptdir, objdir)
+        )
 
     for i,src in ipairs(sources) do
+
+        local deps = {}
+        for _,v in ipairs(self.src_deps[src] or {}) do
+            table.insert(deps, path.join(self.scriptdir, v))
+        end
+
+        local src = path.join(self.scriptdir, src)
+        local obj = objects[i]
+
         rule {
-            inputs  = table.join(headers, {src}),
-            task    = table.join(args, compiler_opts, {"-c", src, "-o", objects[i]}),
-            outputs = {objects[i]},
+            inputs  = table.join(headers, {src}, deps),
+            task    = table.join(args, compiler_opts, {"-c", src, "-o", obj}),
+            outputs = {obj},
             display = "cc ".. src,
         }
     end
@@ -138,6 +150,10 @@ local common = {
 
     -- Warnings to compile with.
     warnings = {},
+
+    -- File dependencies for particular source files. This allows fine-grained
+    -- control over dependencies for a particular translation unit.
+    src_deps = {},
 }
 
 function common:path()
