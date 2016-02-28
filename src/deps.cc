@@ -47,11 +47,11 @@ void ImplicitDeps::addOutput(const Dependency& dep) {
 void ImplicitDeps::addInput(const char* name, size_t length) {
     if (!_f_inputs) return;
 
-    if (length > UINT16_MAX)
-        length = UINT16_MAX;
+    if (length > UINT32_MAX)
+        length = UINT32_MAX;
 
     Dependency dep = {0};
-    dep.length = (uint16_t)length;
+    dep.length = (uint32_t)length;
 
     fwrite(&dep, sizeof(dep), 1, _f_inputs);
     fwrite(name, 1, dep.length, _f_inputs);
@@ -60,11 +60,11 @@ void ImplicitDeps::addInput(const char* name, size_t length) {
 void ImplicitDeps::addOutput(const char* name, size_t length) {
     if (!_f_outputs) return;
 
-    if (length > UINT16_MAX)
-        length = UINT16_MAX;
+    if (length > UINT32_MAX)
+        length = UINT32_MAX;
 
     Dependency dep = {0};
-    dep.length = (uint16_t)length;
+    dep.length = (uint32_t)length;
 
     fwrite(&dep, sizeof(dep), 1, _f_outputs);
     fwrite(name, 1, dep.length, _f_outputs);

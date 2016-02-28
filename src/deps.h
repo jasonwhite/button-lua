@@ -52,7 +52,7 @@ struct Dependency {
      * to the working directory that the child was spawned in.
      */
     char name[0];
-};
+} __attribute__((aligned(4),packed));
 
 /**
  * Handles sending dependencies to the parent build system (if any).
