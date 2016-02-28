@@ -1,5 +1,5 @@
 language: cpp
-script: ./contrib/lua.sh && make && make test
+script: make -j2 test
 
 compiler:
   - gcc
