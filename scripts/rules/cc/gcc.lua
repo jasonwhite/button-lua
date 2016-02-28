@@ -86,6 +86,10 @@ local function compile(self)
     table.append(compiler_opts, self.compiler_opts)
 
     local headers = table.filter(self.srcs, is_header)
+    for i,v in ipairs(headers) do
+        headers[i] = path.join(self.scriptdir, v)
+    end
+
     local sources, objects = get_sources_and_objects(
         self.srcs,
         path.join(self.scriptdir, objdir)
