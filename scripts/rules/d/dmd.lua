@@ -7,6 +7,8 @@ Generates rules for the DMD compiler.
 
 local rules = require "rules"
 
+local cc = require "rules.cc"
+
 --[[
 Helper functions.
 
@@ -138,10 +140,17 @@ function common:rules()
     local inputs = {}
     table.append(inputs, sources)
 
-    -- TODO: Allow linking with C/C++ libraries
     for _,dep in ipairs(self.deps) do
         if is_library(dep) then
             table.insert(inputs, dep:path())
+        elseif cc.is_library(dep) then
+            table.insert(inputs, dep:path())
+        else
+            error(string.format(
+                "The dependency on '%s' from '%s' is not supported",
+                dep.name, self.name
+                ),
+                0)
         end
     end
 
