@@ -137,14 +137,13 @@ function common:rules()
         end
     end
 
-    local inputs = {}
-    table.append(inputs, sources)
+    local libs = {}
 
     for _,dep in ipairs(self.deps) do
         if is_library(dep) then
-            table.insert(inputs, dep:path())
+            table.insert(libs, dep:path())
         elseif cc.is_library(dep) then
-            table.insert(inputs, dep:path())
+            table.insert(libs, dep:path())
         else
             error(string.format(
                 "The dependency on '%s' from '%s' is not supported",
@@ -159,6 +158,8 @@ function common:rules()
     local linker_opts = table.join(self.linker_opts, {"-of" .. output})
 
     if self.combined then
+        local inputs = table.join(sources, libs)
+
         -- Combined compilation
         rule {
             inputs  = inputs,
@@ -179,8 +180,8 @@ function common:rules()
         end
 
         rule {
-            inputs = objects,
-            task = table.join(args, linker_opts, objects),
+            inputs = table.join(objects, libs),
+            task = table.join(args, linker_opts, objects, libs),
             outputs = table.join({output}),
             display = "dmd ".. self:basename(),
         }
