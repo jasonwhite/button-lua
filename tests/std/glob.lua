@@ -101,3 +101,20 @@ assert(equal(
         "c/3/baz.cc",
     }
 ))
+
+SCRIPT_DIR = "a"
+
+assert(equal(
+    glob("*.c"),
+    {
+        "foo.c",
+    }
+))
+
+assert(equal(
+    glob("*"),
+    {
+        "foo.c",
+        "foo.h",
+    }
+))
