@@ -374,7 +374,11 @@ int lua_glob(lua_State* L) {
     lua_getglobal(L, "SCRIPT_DIR");
 
     const char* scriptDir = lua_tostring(L, -1);
-    int root = open(scriptDir ? scriptDir : ".", O_DIRECTORY);
+
+    if (!scriptDir || scriptDir[0] == '\0')
+        scriptDir = ".";
+
+    int root = open(scriptDir, O_DIRECTORY);
 
     lua_pop(L, 1); // Pop SCRIPT_DIR
 

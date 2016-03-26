@@ -5,9 +5,6 @@ Description:
 Tests globbing.
 ]]
 
--- Don't prepend SCRIPT_DIR to glob paths.
-SCRIPT_DIR = nil
-
 local function equal(t1, t2)
     table.sort(t1)
     table.sort(t2)
@@ -28,6 +25,9 @@ local function equal(t1, t2)
 
     return true
 end
+
+-- Don't prepend SCRIPT_DIR to glob paths.
+SCRIPT_DIR = nil
 
 assert(equal(
     glob("*/*.c"),
@@ -116,5 +116,15 @@ assert(equal(
     {
         "foo.c",
         "foo.h",
+    }
+))
+
+SCRIPT_DIR = ""
+
+assert(equal(
+    glob("*/*.c"),
+    {
+        "a/foo.c",
+        "b/bar.c",
     }
 ))
