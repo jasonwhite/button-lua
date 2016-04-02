@@ -20,7 +20,7 @@ local common = {
     name = "",
 
     -- Command line prefix.
-    prefix = {"bbdeps"},
+    prefix = {"bbdeps", "--"},
 
     -- List of dependencies
     deps = {},
