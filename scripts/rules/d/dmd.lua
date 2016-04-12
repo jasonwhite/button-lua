@@ -23,6 +23,26 @@ local function to_object(objdir, src)
 end
 
 --[[
+    Filters for D source files.
+]]
+local function sources(files)
+    return table.filter(files, is_d_source)
+end
+
+--[[
+    Returns a list of objects corresponding to the given list of sources.
+]]
+local function objects(srcs, objdir)
+    local objs = {}
+
+    for _,v in ipairs(srcs) do
+        table.insert(objs, to_object(objdir, v))
+    end
+
+    return objs
+end
+
+--[[
 Base metatable
 ]]
 local common = {
@@ -53,6 +73,10 @@ local common = {
     -- Extra compiler and linker options
     compiler_opts = {};
     linker_opts = {};
+
+    -- File dependencies for particular source files. This allows fine-grained
+    -- control over dependencies.
+    src_deps = {};
 }
 
 function common:path()
@@ -127,15 +151,8 @@ function common:rules()
 
     table.append(compiler_opts, self.compiler_opts)
 
-    local sources = {}
-    local objects = {}
-    for _,v in ipairs(self.srcs) do
-        if is_d_source(v) then
-            local src = path.join(self.scriptdir, v)
-            table.insert(sources, src)
-            table.insert(objects, to_object(objdir, src))
-        end
-    end
+    local srcs = sources(self.srcs)
+    local objs = objects(srcs, path.join(self.scriptdir, objdir))
 
     local libs = {}
 
@@ -158,30 +175,47 @@ function common:rules()
     local linker_opts = table.join(self.linker_opts, {"-of" .. output})
 
     if self.combined then
-        local inputs = table.join(sources, libs)
+        local deps = {}
+        for i,src in ipairs(srcs) do
+            for _,dep in ipairs(self.src_deps[src] or {}) do
+                table.insert(deps, path.join(self.scriptdir, dep))
+            end
+
+            srcs[i] = path.join(self.scriptdir, src)
+        end
 
         -- Combined compilation
         rule {
-            inputs  = inputs,
-            task    = table.join(args, compiler_opts, linker_opts, inputs),
+            inputs  = table.join(srcs, libs, deps),
+            task    = table.join(args, compiler_opts, linker_opts, srcs, libs),
             outputs = {to_object(objdir, output), output},
             display = "dmd ".. self:basename(),
         }
     else
         -- Individual compilation
-        for i,src in ipairs(sources) do
+        for i,src in ipairs(srcs) do
+
+            -- TODO: Do path normalization on source paths and table.
+            local deps = {}
+            for _,v in ipairs(self.src_deps[src] or {}) do
+                table.insert(deps, path.join(self.scriptdir, v))
+            end
+
+            local src = path.join(self.scriptdir, src)
+            local obj = objs[i]
+
             rule {
-                inputs  = {src},
+                inputs  = table.join({src}, deps),
                 task    = table.join(args, compiler_opts,
-                    {"-c", src, "-of".. objects[i]}),
-                outputs = {objects[i]},
+                    {"-c", src, "-of".. obj}),
+                outputs = {obj},
                 display = "dmd ".. src,
             }
         end
 
         rule {
-            inputs = table.join(objects, libs),
-            task = table.join(args, linker_opts, objects, libs),
+            inputs = table.join(objs, libs),
+            task = table.join(args, linker_opts, objs, libs),
             outputs = table.join({output}),
             display = "dmd ".. self:basename(),
         }
