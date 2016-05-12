@@ -6,7 +6,7 @@ OBJECTS=$(addsuffix .o, $(SOURCES))
 LUA_SCRIPTS=$(shell find scripts -type f -name '*.lua')
 LUA_SCRIPTS_C=$(patsubst scripts/%.lua, src/embedded/%.c, $(LUA_SCRIPTS))
 
-TARGET=bblua
+TARGET=button-lua
 
 INCLUDE_PATHS=-Isrc/lua/src
 LIB_PATHS=-Lsrc/lua/src

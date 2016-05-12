@@ -34,4 +34,4 @@ touch -- "a/foo.c" \
          "c/2/bar.cc" \
          "c/3/baz.cc"
 
-bblua $script -o /dev/null
+button-lua $script -o /dev/null

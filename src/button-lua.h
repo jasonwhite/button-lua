@@ -10,7 +10,7 @@
 
 #include "lua.hpp"
 
-namespace bblua {
+namespace buttonlua {
 
 /**
  * Initializes the Lua state with additional functions and libraries.

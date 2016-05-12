@@ -7,12 +7,12 @@
 
 cd $(dirname $0)
 
-if [[ ! -f bblua ]]; then
-    echo "Error: Could not find ./bblua"
+if [[ ! -f button-lua ]]; then
+    echo "Error: Could not find ./button-lua"
     exit 1
 fi
 
-# Make sure we can find bblua on the path.
+# Make sure we can find button-lua on the path.
 export PATH=$(pwd):$PATH
 
 

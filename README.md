@@ -1,12 +1,12 @@
-[buildbadge]: https://travis-ci.org/jasonwhite/bblua.svg?branch=master
-[buildstatus]: https://travis-ci.org/jasonwhite/bblua
+[buildbadge]: https://travis-ci.org/jasonwhite/button-lua.svg?branch=master
+[buildstatus]: https://travis-ci.org/jasonwhite/button-lua
 
-# Lua Build Descriptions for Brilliant Build [![Build Status][buildbadge]][buildstatus]
+# Lua Build Descriptions for Button [![Build Status][buildbadge]][buildstatus]
 
 A tool to generate build descriptions from Lua scripts that are suitable for
-input to [Brilliant Build][].
+input to [Button][].
 
-[Brilliant Build]: https://github.com/jasonwhite/brilliant-build
+[Button]: https://github.com/jasonwhite/button
 
 ## Example
 
@@ -22,7 +22,7 @@ cc.binary {
 If this script is named `BUILD.lua`, we can generate the low-level build
 description by running
 
-    bblua BUILD.lua -o bb.json
+    button-lua BUILD.lua -o button.json
 
 See also [BUILD.lua](/BUILD.lua) for this repository for a real-world example.
 
@@ -32,7 +32,7 @@ Simply run:
 
     make
 
-This will create a self-contained executable named `bblua`.
+This will create a self-contained executable named `button-lua`.
 
 ## License
 

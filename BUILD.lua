@@ -21,7 +21,7 @@ cc.library {
 }
 
 cc.binary {
-    name = "bblua",
+    name = "button-lua",
     deps = {"lua:static"},
     srcs = glob "src/*.cc",
     includes = {"contrib/lua/include"},

@@ -12,7 +12,7 @@
 
 struct lua_State;
 
-namespace bblua {
+namespace buttonlua {
 
 class Rules
 {

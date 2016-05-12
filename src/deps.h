@@ -58,10 +58,10 @@ struct Dependency {
  * Handles sending dependencies to the parent build system (if any).
  *
  * When creating child processes, the parent build system will set the
- * environment variable BB_DEPS to the file descriptor that can be used to send
- * back dependency information from the child process. This is the generic
- * interface for making implicit inputs and outputs known to the parent build
- * system.
+ * environment variables BUTTON_INPUTS and BUTTON_OUTPUTS to the file descriptor
+ * that can be used to send back dependency information from the child process.
+ * This is the generic interface for making implicit inputs and outputs known to
+ * the parent build system.
  */
 class ImplicitDeps {
 private:

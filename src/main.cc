@@ -8,7 +8,7 @@
  */
 #include <iostream>
 
-#include "bblua.h"
+#include "button-lua.h"
 
 int main(int argc, char **argv) {
     lua_State *L = luaL_newstate();
@@ -16,10 +16,10 @@ int main(int argc, char **argv) {
 
     int ret;
 
-    ret = bblua::init(L);
+    ret = buttonlua::init(L);
 
     if (ret == 0)
-        ret = bblua::execute(L, argc, argv);
+        ret = buttonlua::execute(L, argc, argv);
 
     lua_close(L);
 

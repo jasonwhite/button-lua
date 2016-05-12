@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <string>
 
-#include "bblua.h"
+#include "button-lua.h"
 #include "rules.h"
 #include "path.h"
 #include "embedded.h"
@@ -20,7 +20,7 @@
 
 namespace {
 
-const char* usage = "Usage: bblua <script> [-o output] [args...]\n";
+const char* usage = "Usage: button-lua <script> [-o output] [args...]\n";
 
 struct Options
 {
@@ -67,7 +67,7 @@ void print_error(lua_State* L) {
 }
 
 int rule(lua_State* L) {
-    bblua::Rules* rules = (bblua::Rules*)lua_touserdata(L, lua_upvalueindex(1));
+    buttonlua::Rules* rules = (buttonlua::Rules*)lua_touserdata(L, lua_upvalueindex(1));
     if (rules)
         rules->add(L);
     return 0;
@@ -87,7 +87,7 @@ int publish_input(lua_State* L) {
 
 }
 
-namespace bblua {
+namespace buttonlua {
 
 int init(lua_State* L) {
 

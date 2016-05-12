@@ -64,7 +64,7 @@ int json_escaped_string(lua_State *L, const char* s, size_t len) {
 
 }
 
-namespace bblua {
+namespace buttonlua {
 
 Rules::Rules(FILE* f) : _f(f), _n(0) {
     fputs("[", _f);
@@ -194,4 +194,4 @@ int Rules::listToJSON(lua_State *L, const char* field, size_t i) {
     return 0;
 }
 
-} // namespace bblua
+} // namespace buttonlua

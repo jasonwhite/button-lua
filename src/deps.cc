@@ -14,11 +14,11 @@ ImplicitDeps::ImplicitDeps() : _f_inputs(NULL), _f_outputs(NULL) {
     const char* var;
     int fd;
 
-    var = getenv("BB_INPUTS");
+    var = getenv("BUTTON_INPUTS");
     if (var && (fd = atoi(var)))
         _f_inputs = fdopen(fd, "a");
 
-    var = getenv("BB_OUTPUTS");
+    var = getenv("BUTTON_OUTPUTS");
     if (var && (fd = atoi(var)))
         _f_outputs = fdopen(fd, "a");
 }
