@@ -187,7 +187,7 @@ function common:rules()
         -- Combined compilation
         rule {
             inputs  = table.join(srcs, libs, deps),
-            task    = table.join(args, compiler_opts, linker_opts, srcs, libs),
+            task    = {table.join(args, compiler_opts, linker_opts, srcs, libs)},
             outputs = {to_object(objdir, output), output},
             display = "dmd ".. self:basename(),
         }
@@ -206,8 +206,8 @@ function common:rules()
 
             rule {
                 inputs  = table.join({src}, deps),
-                task    = table.join(args, compiler_opts,
-                    {"-c", src, "-of".. obj}),
+                task    = {table.join(args, compiler_opts,
+                    {"-c", src, "-of".. obj})},
                 outputs = {obj},
                 display = "dmd ".. src,
             }
@@ -215,7 +215,7 @@ function common:rules()
 
         rule {
             inputs = table.join(objs, libs),
-            task = table.join(args, linker_opts, objs, libs),
+            task = {table.join(args, linker_opts, objs, libs)},
             outputs = table.join({output}),
             display = "dmd ".. self:basename(),
         }
@@ -254,7 +254,7 @@ function _test:rules()
 
     rule {
         inputs  = {test_runner},
-        task    = {path.join(".", test_runner)},
+        task    = {{path.join(".", test_runner)}},
         outputs = {},
         display = "dmd ".. self:basename(),
     }

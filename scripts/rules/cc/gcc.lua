@@ -107,7 +107,7 @@ local function compile(self)
 
         rule {
             inputs  = table.join(headers, {src}, deps),
-            task    = table.join(args, compiler_opts, {"-c", src, "-o", obj}),
+            task    = {table.join(args, compiler_opts, {"-c", src, "-o", obj})},
             outputs = {obj},
             display = "cc ".. src,
         }
@@ -228,7 +228,7 @@ function common:rules()
     -- Create a binary executable.
     rule {
         inputs  = objects,
-        task    = table.join(args, linker_opts, objects),
+        task    = {table.join(args, linker_opts, objects)},
         outputs = {output},
         display = "ld ".. self:basename(),
     }
@@ -263,7 +263,7 @@ function _library:rules()
         --  * D: operate in deterministic mode
         rule {
             inputs  = objects,
-            task    = table.join(self.prefix, {self.toolchain.ar, "rcsD"}, output, objects),
+            task    = {table.join(self.prefix, {self.toolchain.ar, "rcsD"}, output, objects)},
             outputs = {output},
             display = "ar ".. self:basename(),
         }
@@ -282,7 +282,7 @@ function _library:rules()
 
         rule {
             inputs  = objects,
-            task    = table.join(args, opts, objects),
+            task    = {table.join(args, opts, objects)},
             outputs = {output},
             display = "ld ".. self:basename(),
         }
