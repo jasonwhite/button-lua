@@ -8,15 +8,12 @@ LUA_SCRIPTS_C=$(patsubst scripts/%.lua, src/embedded/%.c, $(LUA_SCRIPTS))
 
 TARGET=button-lua
 
-INCLUDE_PATHS=-Isrc/lua/src
-LIB_PATHS=-Lsrc/lua/src
-
 CXXFLAGS=-g -Wall -Werror -D__STDC_LIMIT_MACROS
 
 all: $(TARGET) luaminify
 
 %.cc.o: %.cc
-	${CXX} $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+	${CXX} $(CXXFLAGS) -c $< -o $@
 
 # Generate strings from Lua files.
 src/embedded/%.c: scripts/%.lua
@@ -25,11 +22,8 @@ src/embedded/%.c: scripts/%.lua
 
 src/embedded.cc.o: $(LUA_SCRIPTS_C)
 
-$(TARGET): $(OBJECTS) src/lua/src/liblua.a
-	${CXX} $(OBJECTS) $(LIB_PATHS) -llua -o $@
-
-src/lua/src/liblua.a:
-	${MAKE} -C src/lua posix
+$(TARGET): $(OBJECTS)
+	${CXX} $(OBJECTS) -llua -o $@
 
 luaminify: tools/luaminify.cc.o
 	${CXX} $^ -o $@
