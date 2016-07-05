@@ -28,7 +28,7 @@ src/embedded/%.c: scripts/%.lua
 src/embedded.cc.o: $(LUA_SCRIPTS_C)
 
 $(TARGET): $(OBJECTS)
-	${CXX} $(OBJECTS) -L$(LUA_INSTALL_DIR)/lib -llua -o $@
+	${CXX} $(OBJECTS) -L$(LUA_INSTALL_DIR)/lib -ldl -llua -o $@
 
 luaminify: tools/luaminify.cc.o
 	${CXX} $^ -o $@
