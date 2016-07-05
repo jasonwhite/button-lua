@@ -105,10 +105,11 @@ int init(lua_State* L) {
     lua_setfield(L, -2, "glob");
 
     lua_getglobal(L, "package");
-    if (lua_getfield(L, -1, "searchers") == LUA_TTABLE) {
+    lua_getfield(L, -1, "searchers");
+    if (lua_type(L, -1) == LUA_TTABLE) {
         // Remove the last entry.
         lua_pushnil(L);
-        lua_seti(L, -2, 4);
+        lua_rawseti(L, -2, 4);
 
         // Replace the C package loader with our embedded script loader. This
         // kills two birds with one stone:
@@ -119,7 +120,7 @@ int init(lua_State* L) {
         //     This helps with debugging and allows the user to override
         //     functionality if needed.
         lua_pushcfunction(L, embedded_searcher);
-        lua_seti(L, -2, 3);
+        lua_rawseti(L, -2, 3);
     }
     lua_pop(L, 2); // Pop package.searchers and package
 

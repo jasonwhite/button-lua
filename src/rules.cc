@@ -152,14 +152,16 @@ int Rules::add(lua_State* L) {
     fputs("\n    {\n        ", _f);
 
     // Inputs (required)
-    if (lua_getfield(L, 1, "inputs") == LUA_TTABLE)
+    lua_getfield(L, 1, "inputs");
+    if (lua_type(L, -1) == LUA_TTABLE)
         json_print_field(L, "inputs", _f);
     else
         return luaL_error(L, "bad type for field '%s' (table expected, got %s)",
                 "inputs", luaL_typename(L, -1));
 
     // Task (required)
-    if (lua_getfield(L, 1, "task") == LUA_TTABLE) {
+    lua_getfield(L, 1, "task");
+    if (lua_type(L, -1) == LUA_TTABLE) {
         fputs(",\n        ", _f);
         json_print_field(L, "task", _f);
     }
@@ -168,7 +170,8 @@ int Rules::add(lua_State* L) {
                 "task", luaL_typename(L, -1));
 
     // Outputs (required)
-    if (lua_getfield(L, 1, "outputs") == LUA_TTABLE) {
+    lua_getfield(L, 1, "outputs");
+    if (lua_type(L, -1) == LUA_TTABLE) {
         fputs(",\n        ", _f);
         json_print_field(L, "outputs", _f);
     }
@@ -177,7 +180,8 @@ int Rules::add(lua_State* L) {
                 "outputs", luaL_typename(L, -1));
 
     // Working directory (optional)
-    switch (lua_getfield(L, 1, "cwd"))
+    lua_getfield(L, 1, "cwd");
+    switch (lua_type(L, -1))
     {
     case LUA_TSTRING:
         fputs(",\n        ", _f);
@@ -192,7 +196,8 @@ int Rules::add(lua_State* L) {
     }
 
     // Display (optional)
-    switch (lua_getfield(L, 1, "display"))
+    lua_getfield(L, 1, "display");
+    switch (lua_type(L, -1))
     {
     case LUA_TSTRING:
         fputs(",\n        ", _f);

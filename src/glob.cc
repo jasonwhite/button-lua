@@ -431,7 +431,7 @@ int lua_glob(lua_State* L) {
 
     for (std::set<std::string>::iterator it = paths.begin(); it != paths.end(); ++it) {
         lua_pushlstring(L, it->data(), it->size());
-        lua_seti(L, -2, n);
+        lua_rawseti(L, -2, n);
         ++n;
     }
 
