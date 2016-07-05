@@ -8,7 +8,12 @@ LUA_SCRIPTS_C=$(patsubst scripts/%.lua, src/embedded/%.c, $(LUA_SCRIPTS))
 
 TARGET=button-lua
 
-CXXFLAGS=-g -Wall -Werror -D__STDC_LIMIT_MACROS
+# Path to Lua's installation directory. This is mostly used for the Travis CI
+# build. If this path doesn't exist and if Lua is installed on the system, that
+# path should be used automatically instead.
+LUA_INSTALL_DIR=install/lua
+
+CXXFLAGS=-g -Wall -Werror -D__STDC_LIMIT_MACROS -I$(LUA_INSTALL_DIR)/include
 
 all: $(TARGET) luaminify
 
@@ -23,7 +28,7 @@ src/embedded/%.c: scripts/%.lua
 src/embedded.cc.o: $(LUA_SCRIPTS_C)
 
 $(TARGET): $(OBJECTS)
-	${CXX} $(OBJECTS) -llua -o $@
+	${CXX} $(OBJECTS) -L$(LUA_INSTALL_DIR)/lib -llua -o $@
 
 luaminify: tools/luaminify.cc.o
 	${CXX} $^ -o $@

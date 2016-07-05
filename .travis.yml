@@ -12,7 +12,8 @@ env:
 before_install:
   - source .travis/setenv_lua.sh
 
-script: make -j2 test
+script:
+  - make -j2 test
 
 compiler:
   - gcc
