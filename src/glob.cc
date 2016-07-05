@@ -397,7 +397,8 @@ int lua_glob(lua_State* L) {
 
         if (type == LUA_TTABLE) {
             for (int j = 1; ; ++j) {
-                if (lua_rawgeti(L, i, j) == LUA_TNIL) {
+                lua_rawgeti(L, i, j);
+                if (lua_type(L, -1) == LUA_TNIL) {
                     lua_pop(L, 1);
                     break;
                 }

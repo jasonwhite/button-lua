@@ -61,7 +61,8 @@ int json_print_table(lua_State* L, FILE* f) {
     fputs("[", f);
 
     for (int i = 1; ; ++i) {
-        int type = lua_rawgeti(L, -1, i);
+        lua_rawgeti(L, -1, i);
+        int type = lua_type(L, -1);
 
         if (type == LUA_TNIL) {
             lua_pop(L, 1);
