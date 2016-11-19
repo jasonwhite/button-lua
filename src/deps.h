@@ -19,14 +19,15 @@
 struct Dependency {
 
     /**
-     * Timestamp of the resource. If unknown, this should be set to 0. In such a
-     * case, the parent build system will compute the value when needed. This is
-     * used by the parent build system to determine if the checksum needs to be
-     * recomputed.
+     * Status of the resource.
      *
-     * For files and directories, this is its last modification time.
+     * Can be:
+     *  0: Status is unknown.
+     *  1: Resource does not exist.
+     *  2: The resource is a file.
+     *  3: The resource is a directory.
      */
-    uint64_t timestamp;
+    uint32_t status;
 
     /**
      * SHA-256 checksum of the contents of the resource. If unknown or not

@@ -17,6 +17,7 @@
 #include "embedded.h"
 #include "glob.h"
 #include "deps.h"
+#include "dircache.h"
 
 namespace {
 
@@ -167,6 +168,10 @@ int execute(lua_State* L, int argc, char** argv) {
 
     ImplicitDeps deps;
     Rules rules(output);
+    DirCache dirCache(&deps);
+
+    lua_pushlightuserdata(L, &dirCache);
+    lua_setglobal(L, "__DIR_CACHE");
 
     // Register publish_input() function
     lua_pushlightuserdata(L, &deps);

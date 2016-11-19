@@ -72,6 +72,7 @@ int cmp(const char* a, const char* b, size_t len1, size_t len2);
 struct Path {
 
     Path() : path(NULL), length(0) {}
+    Path(const std::string& s) : path(s.data()), length(s.length()) {}
     Path(const char* path) : path(path), length(strlen(path)) {}
     Path(const char* path, size_t length) : path(path), length(length) {}
 

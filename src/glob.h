@@ -8,6 +8,8 @@
  */
 #pragma once
 
+#include "path.h"
+
 struct lua_State;
 
 /**
@@ -30,3 +32,8 @@ int lua_glob_match(lua_State* L);
  * Returns: A table of the matching files.
  */
 int lua_glob(lua_State* L);
+
+/**
+ * Returns true if the pattern matches the given filename, false otherwise.
+ */
+bool globMatch(path::Path path, path::Path pattern);

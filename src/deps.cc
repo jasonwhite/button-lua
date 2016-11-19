@@ -69,3 +69,5 @@ void ImplicitDeps::addOutput(const char* name, size_t length) {
     fwrite(&dep, sizeof(dep), 1, _f_outputs);
     fwrite(name, 1, dep.length, _f_outputs);
 }
+
+ImplicitDeps implicitDeps = ImplicitDeps();
