@@ -57,11 +57,11 @@ bool Path::isabs() const {
 }
 
 Path Path::dirname() const {
-    return split(*this).head;
+    return split().head;
 }
 
 Path Path::basename() const {
-    return split(*this).tail;
+    return split().tail;
 }
 
 std::string Path::copy() const {
@@ -84,14 +84,14 @@ std::string Path::copy() const {
     return i;
 }*/
 
-Split split(Path path) {
+Split Path::split() const {
 
     // Search backwards for the last path separator
-    size_t tail_start = path.length;
+    size_t tail_start = length;
 
     while (tail_start > 0) {
         --tail_start;
-        if (issep(path.path[tail_start])) {
+        if (issep(path[tail_start])) {
             ++tail_start;
             break;
         }
@@ -102,7 +102,7 @@ Split split(Path path) {
     while (head_end > 0) {
         --head_end;
 
-        if (!issep(path.path[head_end])) {
+        if (!issep(path[head_end])) {
             ++head_end;
             break;
         }
@@ -112,38 +112,38 @@ Split split(Path path) {
         head_end = tail_start;
 
     Split s;
-    s.head.path   = path.path;
+    s.head.path   = path;
     s.head.length = head_end;
-    s.tail.path   = path.path+tail_start;
-    s.tail.length = path.length-tail_start;
+    s.tail.path   = path+tail_start;
+    s.tail.length = length-tail_start;
     return s;
 }
 
-Split splitExtension(Path path) {
-    size_t base = path.length;
+Split Path::splitExtension() const {
+    size_t base = length;
 
     // Find the base name
     while (base > 0) {
         --base;
-        if (issep(path.path[base])) {
+        if (issep(path[base])) {
             ++base;
             break;
         }
     }
 
     // Skip past initial dots
-    while (base < path.length && path.path[base] == '.')
+    while (base < length && path[base] == '.')
         ++base;
 
     // Skip past non-dots
-    while (base < path.length && path.path[base] != '.')
+    while (base < length && path[base] != '.')
         ++base;
 
     Split s;
-    s.head.path = path.path;
+    s.head.path = path;
     s.head.length = base;
-    s.tail.path = path.path+base;
-    s.tail.length = path.length-base;
+    s.tail.path = path+base;
+    s.tail.length = length-base;
     return s;
 }
 
@@ -208,7 +208,7 @@ static int path_split(lua_State* L) {
     size_t len;
     const char* path = luaL_checklstring(L, 1, &len);
 
-    path::Split s = path::split(path::Path(path, len));
+    path::Split s = path::Path(path, len).split();
 
     lua_pushlstring(L, s.head.path, s.head.length);
     lua_pushlstring(L, s.tail.path, s.tail.length);
@@ -220,7 +220,7 @@ static int path_basename(lua_State* L) {
     size_t len;
     const char* path = luaL_checklstring(L, 1, &len);
 
-    path::Split s = path::split(path::Path(path, len));
+    path::Split s = path::Path(path, len).split();
     lua_pushlstring(L, s.tail.path, s.tail.length);
     return 1;
 }
@@ -229,7 +229,7 @@ static int path_dirname(lua_State* L) {
     size_t len;
     const char* path = luaL_checklstring(L, 1, &len);
 
-    path::Split s = path::split(path::Path(path, len));
+    path::Split s = path::Path(path, len).split();
     lua_pushlstring(L, s.head.path, s.head.length);
     return 1;
 }
@@ -239,7 +239,7 @@ static int path_splitext(lua_State* L) {
     size_t len;
     const char* path = luaL_checklstring(L, 1, &len);
 
-    path::Split s = path::splitExtension(path::Path(path, len));
+    path::Split s = path::Path(path, len).splitExtension();
 
     lua_pushlstring(L, s.head.path, s.head.length);
     lua_pushlstring(L, s.tail.path, s.tail.length);
@@ -251,7 +251,7 @@ static int path_getext(lua_State* L) {
     size_t len;
     const char* path = luaL_checklstring(L, 1, &len);
 
-    path::Split s = path::splitExtension(path::Path(path, len));
+    path::Split s = path::Path(path, len).splitExtension();
 
     lua_pushlstring(L, s.tail.path, s.tail.length);
     return 1;
@@ -262,7 +262,7 @@ static int path_setext(lua_State* L) {
     const char* path = luaL_checklstring(L, 1, &pathlen);
     const char* ext = luaL_checklstring(L, 2, &extlen);
 
-    path::Split s = path::splitExtension(path::Path(path, pathlen));
+    path::Split s = path::Path(path, pathlen).splitExtension();
 
     lua_pushlstring(L, s.head.path, s.head.length);
     lua_pushlstring(L, ext, extlen);

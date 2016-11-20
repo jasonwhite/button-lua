@@ -179,7 +179,7 @@ void DirCache::globRecursive(Path root, std::string& path,
  */
 void DirCache::glob(Path root, Path path, GlobCallback callback, void* data) {
 
-    path::Split s = path::split(path);
+    path::Split s = path.split();
 
     if (isGlobPattern(s.head)) {
         // Directory name contains a glob pattern

@@ -69,6 +69,8 @@ int cmp(char a, char b);
 int cmp(const char* a, const char* b, size_t len);
 int cmp(const char* a, const char* b, size_t len1, size_t len2);
 
+struct Split;
+
 struct Path {
 
     Path() : path(NULL), length(0) {}
@@ -88,6 +90,17 @@ struct Path {
     Path basename() const;
 
     std::string copy() const;
+
+    /**
+     * Splits a path such that the head is the parent directory (empty if none) and
+     * the tail is the basename of the file path.
+     */
+    Split split() const;
+
+    /**
+     * Splits a path into an extension.
+     */
+    Split splitExtension() const;
 };
 
 /**
@@ -97,17 +110,6 @@ struct Split {
     Path head;
     Path tail;
 };
-
-/**
- * Splits a path such that the head is the parent directory (empty if none) and
- * the tail is the basename of the file path.
- */
-Split split(Path path);
-
-/**
- * Splits a path into an extension.
- */
-Split splitExtension(Path path);
 
 /**
  * Joins two paths.
