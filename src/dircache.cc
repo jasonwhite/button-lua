@@ -49,10 +49,10 @@ DirEntries dirEntries(const std::string& path) {
         if (strcmp(entry->d_name, "." ) == 0 ||
             strcmp(entry->d_name, "..") == 0) continue;
 
-        // Directory entry type is unknown. The file system is not required to
-        // provide this information. Thus, we need to figure it out by using
-        // stat.
         if (entry->d_type == DT_UNKNOWN) {
+            // Directory entry type is unknown. The file system is not required
+            // to provide this information. Thus, we need to figure it out by
+            // using stat.
             if (fstatat(dirfd(dir), entry->d_name, &statbuf, 0) == 0) {
                 switch (statbuf.st_mode & S_IFMT) {
                     case S_IFIFO:  entry->d_type = DT_FIFO; break;
@@ -231,7 +231,6 @@ const DirEntries& DirCache::dirEntries(const std::string& path) {
     if (it != cache.end())
         return it->second;
 
-    // TODO: Report dependency on this directory.
     if (_deps) _deps->addInput(path.data(), path.length());
 
     // List the directories, cache it, and return the cached list.
