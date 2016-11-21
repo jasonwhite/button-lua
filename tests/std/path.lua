@@ -40,6 +40,7 @@ assert(path.join(nil, "foo") == "foo")
 local split_tests = {
     {"", "", "", ""},
     {"/", "/", "", "/"},
+    {"foo", "", "foo", "foo"},
     {"/foo", "/", "foo", "/foo"},
     {"foo/bar", "foo", "bar", "foo/bar"},
     {"foo/", "foo", "", "foo/"},
@@ -124,3 +125,59 @@ assert(path.setext("foo.", ".c") == "foo.c")
 assert(path.setext("foo.bar", ".c") == "foo.c")
 assert(path.setext(".foo.bar", ".c") == ".foo.c")
 assert(path.setext(".foo", ".c") == ".foo.c")
+
+--[[
+    path.components
+]]
+
+local components_tests = {
+    {"", {}, ""},
+    {"foo", {"foo"}, "foo"},
+    {"foo/", {"foo"}, "foo"},
+    {"foo/bar", {"foo", "bar"}, "foo/bar"},
+    {"foo/bar/", {"foo", "bar"}, "foo/bar"},
+    {"/foo/bar/", {"/", "foo", "bar"}, "/foo/bar"},
+    {"foo///bar", {"foo", "bar"}, "foo/bar"},
+    {"/foo/bar", {"/", "foo", "bar"}, "/foo/bar"},
+    {"../foo/bar/baz", {"..", "foo", "bar", "baz"}, "../foo/bar/baz"},
+}
+
+local components_error = 'In path.components("%s"): expected %s, got %s'
+
+for _,v in ipairs(components_tests) do
+    local components = {path.components(v[1])}
+
+    local got = table.show(components, "")
+    local expected = table.show(v[2], "")
+
+    assert(#components == #v[2],
+        string.format(components_error, v[1], expected, got))
+
+    for i,c in ipairs(components) do
+        assert(c == v[2][i],
+            string.format(components_error, v[1], c, v[2][i]))
+    end
+
+    local joined = path.join(table.unpack(components))
+    assert(joined == v[3],
+        string.format('In path.components("%s"): got joined path "%s", expected "%s"',
+        v[1], joined, v[3]))
+end
+
+--[[
+    path.norm
+]]
+assert(path.norm("") == ".")
+assert(path.norm(".") == ".")
+assert(path.norm("foo") == "foo")
+assert(path.norm("./foo") == "foo")
+assert(path.norm("/foo") == "/foo")
+assert(path.norm("foo//bar") == "foo/bar")
+assert(path.norm("foo/./bar") == "foo/bar")
+assert(path.norm("foo/../bar") == "bar")
+assert(path.norm("foo/../bar/..") == ".")
+assert(path.norm("../foo/../bar") == "../bar")
+assert(path.norm("/../foo/../bar") == "/bar")
+assert(path.norm("../foo/../bar/") == "../bar")
+assert(path.norm("../foo/../bar///") == "../bar")
+assert(path.norm("../path/./to//a/../b/c/../../test.txt/") == "../path/to/test.txt")

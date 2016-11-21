@@ -11,6 +11,7 @@
 #include <stddef.h> // For size_t
 #include <string.h> // for strlen
 #include <string>
+#include <vector>
 
 struct lua_State;
 
@@ -42,7 +43,7 @@ namespace path {
 const char defaultSep = '\\';
 const bool caseSensitive = false;
 
-inline bool issep(char c) {
+inline bool isSep(char c) {
     return c == '/' || c == '\\';
 }
 
@@ -51,7 +52,7 @@ inline bool issep(char c) {
 const char defaultSep = '/';
 const bool caseSensitive = true;
 
-inline bool issep(char c) {
+inline bool isSep(char c) {
     return c == '/';
 }
 
@@ -101,6 +102,38 @@ struct Path {
      * Splits a path into an extension.
      */
     Split splitExtension() const;
+
+    /**
+     * Returns a list of the path components.
+     */
+    std::vector<Path> components() const;
+    void components(std::vector<Path>& v) const;
+    int components(lua_State* L) const;
+
+    /**
+     * Normalizes the path such that "." and ".." are resolved. Superfluous
+     * directory separators are also removed.
+     */
+    std::string norm() const;
+
+    /**
+     * Joins the normalized path to an existing buffer.
+     */
+    void norm(std::string& buf) const;
+
+    /**
+     * Returns true if the path is equal to ".".
+     */
+    bool isDot() const {
+        return length == 1 && path[0] == '.';
+    }
+
+    /**
+     * Returns true if the path is equal to "..".
+     */
+    bool isDotDot() const {
+        return length == 2 && path[0] == '.' && path[1] == '.';
+    }
 };
 
 /**

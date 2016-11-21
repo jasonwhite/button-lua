@@ -13,7 +13,7 @@
 namespace path {
 
 int cmp(char a, char b) {
-    if (issep(a) && issep(b))
+    if (isSep(a) && isSep(b))
         return 0;
 
 #if PATH_STYLE == PATH_STYLE_WINDOWS
@@ -45,11 +45,11 @@ int cmp(const char* a, const char* b, size_t len1, size_t len2) {
 }
 
 bool Path::isabs() const {
-    if(length > 0 && issep(path[0]))
+    if(length > 0 && isSep(path[0]))
         return true;
 
 #if PATH_STYLE == PATH_STYLE_WINDOWS
-    if(length > 2 && path[1] == ':' && issep(path[2]))
+    if(length > 2 && path[1] == ':' && isSep(path[2]))
         return true;
 #endif
 
@@ -68,22 +68,6 @@ std::string Path::copy() const {
     return std::string(path, length);
 }
 
-/**
- * Helper function to get the distance forward to a '/', '\', or to the end of
- * the buffer.
- */
-/*static size_t _getelem(const char* path, size_t len)
-{
-    size_t i;
-
-    for (i = 0; i < len; ++i) {
-        if (issep(path[i]))
-            break;
-    }
-
-    return i;
-}*/
-
 Split Path::split() const {
 
     // Search backwards for the last path separator
@@ -91,18 +75,18 @@ Split Path::split() const {
 
     while (tail_start > 0) {
         --tail_start;
-        if (issep(path[tail_start])) {
+        if (isSep(path[tail_start])) {
             ++tail_start;
             break;
         }
     }
 
-    // Trim off the path separators
+    // Trim off the path separator(s)
     size_t head_end = tail_start;
     while (head_end > 0) {
         --head_end;
 
-        if (!issep(path[head_end])) {
+        if (!isSep(path[head_end])) {
             ++head_end;
             break;
         }
@@ -125,7 +109,7 @@ Split Path::splitExtension() const {
     // Find the base name
     while (base > 0) {
         --base;
-        if (issep(path[base])) {
+        if (isSep(path[base])) {
             ++base;
             break;
         }
@@ -147,8 +131,93 @@ Split Path::splitExtension() const {
     return s;
 }
 
-std::string& join(std::string& buf, Path path)
-{
+std::vector<Path> Path::components() const {
+    std::vector<Path> v;
+    components(v);
+    return v;
+}
+
+void Path::components(std::vector<Path>& v) const {
+    Split s = split();
+
+    if (s.head.length == 1 && s.head.path[0] == '/' && !s.tail.length) {
+        v.push_back(s.head);
+        return;
+    }
+
+    if (s.head.length)
+    {
+        s.head.components(v);
+
+        if (s.tail.length)
+            v.push_back(s.tail);
+    }
+    else if (s.tail.length) {
+        v.push_back(s.tail);
+    }
+}
+
+int Path::components(lua_State* L) const {
+    Split s = split();
+
+    if (s.head.length == 1 && s.head.path[0] == '/' && !s.tail.length) {
+        lua_pushlstring(L, s.head.path, s.head.length);
+        return 1;
+    }
+
+    if (s.head.length)
+    {
+        int n = s.head.components(L);
+        if (s.tail.length) {
+            lua_pushlstring(L, s.tail.path, s.tail.length);
+            return n + 1;
+        }
+
+        return n;
+    }
+    else if (s.tail.length) {
+        lua_pushlstring(L, s.tail.path, s.tail.length);
+        return 1;
+    }
+
+    return 0;
+}
+
+std::string Path::norm() const {
+    std::string buf;
+    norm(buf);
+    return buf;
+}
+
+void Path::norm(std::string& buf) const {
+
+    // Stack of path components that we build up.
+    std::vector<Path> stack;
+
+    for (auto&& c: components()) {
+        if (c.isDot()) {
+            // Filter out "." path components
+            continue;
+        }
+        else if (c.isDotDot() && !stack.empty() && !stack.back().isDotDot()) {
+            if (!stack.back().isabs())
+                stack.pop_back();
+        }
+        else {
+            stack.push_back(c);
+        }
+    }
+
+    if (stack.empty()) {
+        join(buf, ".");
+    }
+    else {
+        for (auto&& c: stack)
+            join(buf, c);
+    }
+}
+
+std::string& join(std::string& buf, Path path) {
     if (path.isabs()) {
         // Path is absolute, reset the buffer length
         buf.clear();
@@ -156,7 +225,7 @@ std::string& join(std::string& buf, Path path)
     else {
         // Path is relative, add path separator if necessary.
         size_t len = buf.size();
-        if (len > 0 && !issep(buf[len-1]))
+        if (len > 0 && !isSep(buf[len-1]))
             buf.push_back(defaultSep);
     }
 
@@ -192,7 +261,7 @@ static int path_join(lua_State* L) {
         }
         else {
             // Path is relative, add path separator if necessary.
-            if (b.n > 0 && !path::issep(b.b[b.n-1]))
+            if (b.n > 0 && !path::isSep(b.b[b.n-1]))
                 luaL_addchar(&b, path::defaultSep);
         }
 
@@ -271,15 +340,24 @@ static int path_setext(lua_State* L) {
     return 1;
 }
 
+static int path_components(lua_State* L) {
+
+    size_t len;
+    if (const char* str = luaL_checklstring(L, 1, &len))
+        return path::Path(str, len).components(L);
+
+    return 0;
+}
+
 static int path_norm(lua_State* L) {
 
-    //size_t len;
-    //const char* path = luaL_checklstring(L, 1, &len);
+    size_t len;
+    const char* path = luaL_checklstring(L, 1, &len);
 
-    luaL_Buffer b;
-    luaL_buffinit(L, &b);
+    auto buf = path::Path(path, len).norm();
 
-    luaL_pushresult(&b);
+    lua_pushlstring(L, buf.data(), buf.length());
+
     return 1;
 }
 
@@ -292,6 +370,7 @@ static const luaL_Reg pathlib[] = {
     {"splitext", path_splitext},
     {"getext", path_getext},
     {"setext", path_setext},
+    {"components", path_components},
     {"norm", path_norm},
     {NULL, NULL}
 };
