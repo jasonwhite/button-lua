@@ -230,17 +230,17 @@ const DirEntries& DirCache::dirEntries(Path root, Path dir) {
 
 const DirEntries& DirCache::dirEntries(const std::string& path) {
 
-    // TODO: Normalize the input path.
+    auto normalized = Path(path).norm();
 
     // Did we already do the work?
-    const auto it = cache.find(path);
+    const auto it = cache.find(normalized);
     if (it != cache.end())
         return it->second;
 
-    if (_deps) _deps->addInput(path.data(), path.length());
+    if (_deps) _deps->addInput(normalized.data(), normalized.length());
 
     // List the directories, cache it, and return the cached list.
     return cache.insert(
-            std::pair<std::string, DirEntries>(path, ::dirEntries(path))
+            std::pair<std::string, DirEntries>(normalized, ::dirEntries(normalized))
             ).first->second;
 }
