@@ -25,6 +25,13 @@ bool operator<(const DirEntry& a, const DirEntry& b) {
 namespace {
 
 /**
+ * Returns true if a NULL-terminated path is "." or "..".
+ */
+bool isDotOrDotDot(const char* p) {
+    return (*p++ == '.' && (*p == '\0' || (*p++ == '.' && *p == '\0')));
+}
+
+/**
  * Returns a list of the files in a directory.
  */
 DirEntries dirEntries(const std::string& path) {
@@ -46,8 +53,7 @@ DirEntries dirEntries(const std::string& path) {
     struct stat statbuf;
 
     while ((entry = readdir(dir))) {
-        if (strcmp(entry->d_name, "." ) == 0 ||
-            strcmp(entry->d_name, "..") == 0) continue;
+        if (isDotOrDotDot(entry->d_name)) continue;
 
         if (entry->d_type == DT_UNKNOWN) {
             // Directory entry type is unknown. The file system is not required
