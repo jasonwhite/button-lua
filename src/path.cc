@@ -56,6 +56,17 @@ bool Path::isabs() const {
     return false;
 }
 
+Path Path::root() const {
+    if (length == 1 && path[0] == '/')
+        return Path(path, 1);
+
+    return Path(nullptr, 0);
+}
+
+bool Path::isRoot() const {
+    return length > 0 && root().length == length;
+}
+
 Path Path::dirname() const {
     return split().head;
 }
@@ -140,7 +151,7 @@ std::vector<Path> Path::components() const {
 void Path::components(std::vector<Path>& v) const {
     Split s = split();
 
-    if (s.head.length == 1 && s.head.path[0] == '/' && !s.tail.length) {
+    if (s.head.isRoot() && !s.tail.length) {
         v.push_back(s.head);
         return;
     }
@@ -160,7 +171,7 @@ void Path::components(std::vector<Path>& v) const {
 int Path::components(lua_State* L) const {
     Split s = split();
 
-    if (s.head.length == 1 && s.head.path[0] == '/' && !s.tail.length) {
+    if (s.head.isRoot() && !s.tail.length) {
         lua_pushlstring(L, s.head.path, s.head.length);
         return 1;
     }

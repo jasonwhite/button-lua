@@ -83,13 +83,40 @@ struct Path {
     size_t length;
 
     /**
+     * Returns the root portion of the path.
+     *
+     * On Posix, simply returns "/" if the path starts with it.
+     *
+     * On Windows, returns a matching "X:\", "\\server\share", or
+     * "\\?\UNC\server\share".
+     *
+     * If the path is not rooted, returns a path of length 0.
+     */
+    Path root() const;
+
+    /**
+     * Returns true if the path is just a root and nothing else.
+     */
+    bool isRoot() const;
+
+    /**
      * Returns true if the given path is absolute.
      */
     bool isabs() const;
 
+    /**
+     * Gets the directory name of the path.
+     */
     Path dirname() const;
+
+    /**
+     * Gets the name of just the file name in the path.
+     */
     Path basename() const;
 
+    /**
+     * Returns a copy of the path as a string.
+     */
     std::string copy() const;
 
     /**
