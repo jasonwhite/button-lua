@@ -14,6 +14,7 @@
 #include "button-lua.h"
 #include "rules.h"
 #include "path.h"
+#include "lua_path.h"
 #include "embedded.h"
 #include "glob.h"
 #include "deps.h"
@@ -145,7 +146,7 @@ int execute(lua_State* L, int argc, char** argv) {
     }
 
     // Set SCRIPT_DIR to the script's directory.
-    path::Path dirname = path::Path(opts.script).dirname();
+    Path dirname = Path(opts.script).dirname();
     lua_pushlstring(L, dirname.path, dirname.length);
     lua_setglobal(L, "SCRIPT_DIR");
 

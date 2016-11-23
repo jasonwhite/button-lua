@@ -27,7 +27,7 @@ struct DirEntry {
 
 typedef std::vector<DirEntry> DirEntries;
 
-typedef void (*GlobCallback)(path::Path path, bool isDir, void* data);
+typedef void (*GlobCallback)(Path path, bool isDir, void* data);
 
 /**
  * A cache for directory listings.
@@ -50,7 +50,7 @@ public:
     /**
      * Convenience function. The two paths are joined and then looked up.
      */
-    const DirEntries& dirEntries(path::Path root, path::Path dir);
+    const DirEntries& dirEntries(Path root, Path dir);
 
     /**
      * Globs for files starting at the given root.
@@ -63,17 +63,17 @@ public:
      *   callback = The function to call for every matched file name.
      *   data     = Data to pass along to the callback function.
      */
-    void glob(path::Path root, path::Path path, GlobCallback callback,
+    void glob(Path root, Path path, GlobCallback callback,
             void* data = nullptr);
 
     /**
      * Helper function. |path| must not contain a glob pattern.
      */
-    void glob(path::Path root, path::Path path, path::Path pattern, GlobCallback callback,
+    void glob(Path root, Path path, Path pattern, GlobCallback callback,
             void* data = nullptr);
 
 private:
 
-    void globRecursive(path::Path root, std::string& path, GlobCallback callback,
+    void globRecursive(Path root, std::string& path, GlobCallback callback,
             void* data = nullptr);
 };

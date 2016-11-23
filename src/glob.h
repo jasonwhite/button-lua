@@ -36,4 +36,4 @@ int lua_glob(lua_State* L);
 /**
  * Returns true if the pattern matches the given filename, false otherwise.
  */
-bool globMatch(path::Path path, path::Path pattern);
+bool globMatch(Path path, Path pattern);

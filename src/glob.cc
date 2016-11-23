@@ -24,8 +24,6 @@
 #include "path.h"
 #include "dircache.h"
 
-using path::Path;
-
 namespace {
 
 /**

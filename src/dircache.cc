@@ -16,8 +16,6 @@
 #include "path.h"
 #include "deps.h"
 
-using path::Path;
-
 bool operator<(const DirEntry& a, const DirEntry& b) {
     return std::tie(a.name, a.isDir) < std::tie(b.name, b.isDir);
 }
@@ -141,14 +139,14 @@ void DirCache::glob(Path root, Path path, Path pattern,
     std::string buf(path.path, path.length);
 
     if (pattern.length == 0) {
-        path::join(buf, pattern);
+        pattern.join(buf);
         callback(Path(buf.data(), buf.size()), true, data);
         return;
     }
 
     for (auto&& entry: dirEntries(root, path)) {
         if (globMatch(entry.name, pattern)) {
-            path::join(buf, entry.name);
+            Path(entry.name).join(buf);
 
             callback(Path(buf.data(), buf.size()), entry.isDir, data);
 
@@ -169,7 +167,7 @@ void DirCache::globRecursive(Path root, std::string& path,
     callback(Path(path.data(), path.size()), true, data);
 
     for (auto&& entry: dirEntries(root, path)) {
-        path::join(path, entry.name);
+        Path(entry.name).join(path);
 
         callback(Path(path.data(), path.size()), entry.isDir, data);
 
@@ -185,7 +183,7 @@ void DirCache::globRecursive(Path root, std::string& path,
  */
 void DirCache::glob(Path root, Path path, GlobCallback callback, void* data) {
 
-    path::Split s = path.split();
+    Split<Path> s = path.split();
 
     if (isGlobPattern(s.head)) {
         // Directory name contains a glob pattern
@@ -224,7 +222,7 @@ DirCache::DirCache(ImplicitDeps* deps) : _deps(deps) {}
 
 const DirEntries& DirCache::dirEntries(Path root, Path dir) {
     std::string buf(root.path, root.length);
-    path::join(buf, dir);
+    dir.join(buf);
     return dirEntries(buf);
 }
 
