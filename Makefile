@@ -38,4 +38,3 @@ test: $(TARGET)
 
 clean:
 	$(RM) $(TARGET) luaminify $(OBJECTS) $(LUA_SCRIPTS_C)
-	${MAKE} -C src/lua clean
