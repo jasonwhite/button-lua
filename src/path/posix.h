@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "basepath.h"
+#include "path/base.h"
 
 class PosixPath : public BasePath<PosixPath> {
 public:

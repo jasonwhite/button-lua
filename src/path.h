@@ -8,6 +8,6 @@
  */
 #pragma once
 
-#include "posixpath.h"
+#include "path/posix.h"
 
 using Path = PosixPath;

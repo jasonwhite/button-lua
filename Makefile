@@ -1,6 +1,6 @@
 .PHONY: all clean test
 
-SOURCES=$(wildcard src/*.cc)
+SOURCES=$(wildcard src/*.cc src/*/*.cc)
 OBJECTS=$(addsuffix .o, $(SOURCES))
 
 LUA_SCRIPTS=$(shell find scripts -type f -name '*.lua')
@@ -13,7 +13,7 @@ TARGET=button-lua
 # path should be used automatically instead.
 LUA_INSTALL_DIR=install/lua
 
-CXXFLAGS=-std=c++11 -g -Wall -Werror -D__STDC_LIMIT_MACROS -I$(LUA_INSTALL_DIR)/include
+CXXFLAGS=-std=c++11 -g -Wall -Werror -D__STDC_LIMIT_MACROS -I$(LUA_INSTALL_DIR)/include -Isrc
 
 all: $(TARGET) luaminify
 
