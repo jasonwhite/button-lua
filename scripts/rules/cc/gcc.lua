@@ -41,7 +41,7 @@ local function is_header(f)
 end
 
 local function to_object(objdir, src)
-    return path.join(objdir, src .. ".o")
+    return path.norm(path.join(objdir, src .. ".o"))
 end
 
 --[[
@@ -52,7 +52,7 @@ local function get_sources_and_objects(srcs, objdir)
     local objects = {}
     for _,v in ipairs(srcs) do
         if is_source(v) then
-            table.insert(sources, v)
+            table.insert(sources, path.norm(v))
             table.insert(objects, to_object(objdir, v))
         end
     end
@@ -76,7 +76,8 @@ local function compile(self)
     end
 
     for _,v in ipairs(self.includes) do
-        table.insert(compiler_opts, "-I".. path.join(self.scriptdir, v))
+        table.insert(compiler_opts,
+            "-I".. path.norm(path.join(self.scriptdir, v)))
     end
 
     for _,v in ipairs(self.defines) do
@@ -87,7 +88,7 @@ local function compile(self)
 
     local headers = table.filter(self.srcs, is_header)
     for i,v in ipairs(headers) do
-        headers[i] = path.join(self.scriptdir, v)
+        headers[i] = path.norm(path.join(self.scriptdir, v))
     end
 
     local sources, objects = get_sources_and_objects(
@@ -99,10 +100,10 @@ local function compile(self)
 
         local deps = {}
         for _,v in ipairs(self.src_deps[src] or {}) do
-            table.insert(deps, path.join(self.scriptdir, v))
+            table.insert(deps, path.norm(path.join(self.scriptdir, v)))
         end
 
-        local src = path.join(self.scriptdir, src)
+        local src = path.norm(path.join(self.scriptdir, src))
         local obj = objects[i]
 
         rule {
@@ -161,7 +162,7 @@ local common = {
 }
 
 function common:path()
-    return path.join(self.bindir, self:basename())
+    return path.norm(path.join(self.bindir, self:basename()))
 end
 
 setmetatable(common, {__index = rules.common})
@@ -183,7 +184,6 @@ local function binary(opts, base)
     setmetatable(opts, base)
     return rules.add(opts)
 end
-
 
 --[[
     A library. Can be shared, static, or both (default).

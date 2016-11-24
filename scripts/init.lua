@@ -81,8 +81,6 @@ end
 
 --[[
     Import the rules from another build script.
-
-    TODO: Send back dependency on this file
 ]]
 function import(file)
     local old_dir = SCRIPT_DIR

@@ -19,14 +19,20 @@ local function is_d_source(src)
 end
 
 local function to_object(objdir, src)
-    return path.setext(path.join(objdir, src), ".o")
+    return path.norm(path.setext(path.join(objdir, src), ".o"))
 end
 
 --[[
     Filters for D source files.
 ]]
 local function sources(files)
-    return table.filter(files, is_d_source)
+    local srcs = table.filter(files, is_d_source)
+
+    for i,v in ipairs(srcs) do
+        files[i] = path.norm(v)
+    end
+
+    return srcs
 end
 
 --[[
@@ -80,7 +86,7 @@ local common = {
 }
 
 function common:path()
-    return path.join(self.bindir, self:basename())
+    return path.norm(path.join(self.bindir, self:basename()))
 end
 
 setmetatable(common, {__index = rules.common})
@@ -131,18 +137,20 @@ setmetatable(_test, {__index = common})
 Generates the low-level rules required to build a generic D library/binary.
 ]]
 function common:rules()
-    local objdir = self.objdir or path.join("obj", self:basename())
+    local objdir = self.objdir or path.norm(path.join("obj", self:basename()))
 
     local args = table.join(self.prefix, self.compiler, self.opts)
 
     local compiler_opts = {"-op", "-od".. objdir}
 
     for _,v in ipairs(self.imports) do
-        table.insert(compiler_opts, "-I" .. path.join(self.scriptdir, v))
+        table.insert(compiler_opts,
+            "-I" .. path.norm(path.join(self.scriptdir, v)))
     end
 
     for _,v in ipairs(self.string_imports) do
-        table.insert(compiler_opts, "-J" .. path.join(self.scriptdir, v))
+        table.insert(compiler_opts,
+            "-J" .. path.norm(path.join(self.scriptdir, v)))
     end
 
     for _,v in ipairs(self.versions) do
@@ -178,10 +186,10 @@ function common:rules()
         local deps = {}
         for i,src in ipairs(srcs) do
             for _,dep in ipairs(self.src_deps[src] or {}) do
-                table.insert(deps, path.join(self.scriptdir, dep))
+                table.insert(deps, path.norm(path.join(self.scriptdir, dep)))
             end
 
-            srcs[i] = path.join(self.scriptdir, src)
+            srcs[i] = path.norm(path.join(self.scriptdir, src))
         end
 
         -- Combined compilation
@@ -195,13 +203,12 @@ function common:rules()
         -- Individual compilation
         for i,src in ipairs(srcs) do
 
-            -- TODO: Do path normalization on source paths and table.
             local deps = {}
             for _,v in ipairs(self.src_deps[src] or {}) do
-                table.insert(deps, path.join(self.scriptdir, v))
+                table.insert(deps, path.norm(path.join(self.scriptdir, v)))
             end
 
-            local src = path.join(self.scriptdir, src)
+            local src = path.norm(path.join(self.scriptdir, src))
             local obj = objs[i]
 
             rule {
