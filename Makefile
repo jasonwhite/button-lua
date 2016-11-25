@@ -23,7 +23,7 @@ all: $(TARGET) luaminify
 # Generate strings from Lua files.
 src/embedded/%.c: scripts/%.lua
 	@mkdir -p "$(@D)"
-	xxd -i $^ $@
+	./tools/embed.lua $^ > $@
 
 src/embedded.cc.o: $(LUA_SCRIPTS_C)
 
