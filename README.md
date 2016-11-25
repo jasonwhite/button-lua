@@ -31,11 +31,30 @@ See also [BUILD.lua](/BUILD.lua) for this repository for a real-world example.
 
 ## Building it
 
-Simply run:
+### On Linux
+
+You need Lua 5.2 or above installed. One of the following commands should do
+that for you:
+
+    sudo pacman -Sy lua
+    sudo apt-get install lua5.2
+
+Then, simply run:
 
     make
 
 This will create a self-contained executable named `button-lua`.
+
+### On Windows
+
+Since Windows has no real package manager, we need to download Lua ourselves.
+There is a PowerShell script to do that for you:
+
+    powershell -ExecutionPolicy Bypass -File .\tools\get-lua.ps1
+
+Then, build the Visual Studio 2015 solution:
+
+    vs\vs2015\button-lua.sln
 
 ## License
 
