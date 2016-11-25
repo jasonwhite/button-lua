@@ -1,5 +1,3 @@
-#!/usr/bin/lua
-
 --[[
 Copyright (c) 2016 Jason White
 
