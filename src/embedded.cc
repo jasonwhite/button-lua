@@ -15,7 +15,7 @@
 
 // Helper macro for adding new modules
 #define SCRIPT(module, path, name) \
-    {(module), (path), scripts_ ## name ## _lua, scripts_ ## name ## _lua_len}
+    {(module), (path), scripts_ ## name ## _lua, sizeof(scripts_ ## name ## _lua)}
 
 namespace {
 
