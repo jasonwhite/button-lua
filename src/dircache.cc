@@ -6,6 +6,7 @@
 
 #ifdef _WIN32
 #   include <windows.h>
+#   include <codecvt>
 #else
 #   include <dirent.h>
 #   include <sys/stat.h>
@@ -29,8 +30,17 @@ namespace {
 /**
  * Returns true if a NULL-terminated path is "." or "..".
  */
-bool isDotOrDotDot(const char* p) {
+template<typename CharT>
+bool isDotOrDotDot(const CharT* p);
+
+template<>
+bool isDotOrDotDot<char>(const char* p) {
     return (*p++ == '.' && (*p == '\0' || (*p++ == '.' && *p == '\0')));
+}
+
+template<>
+bool isDotOrDotDot<wchar_t>(const wchar_t* p) {
+    return (*p++ == L'.' && (*p == L'\0' || (*p++ == L'.' && *p == L'\0')));
 }
 
 /**
@@ -42,14 +52,16 @@ DirEntries dirEntries(const std::string& path) {
 
 #ifdef _WIN32
 
-    // FIXME: Use the UTF-16 version of the API. We are using UTF-8 everywhere
-    // internally, so we need to convert.
-    //
-    // Use the ANSI version of the API for now.
-    WIN32_FIND_DATAA entry;
+    // Convert path to UTF-16
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::wstring widePath = converter.from_bytes(path);
 
-    HANDLE h = FindFirstFileExA(
-            path.c_str(),
+    widePath.append(L"\\*.*");
+
+    WIN32_FIND_DATAW entry;
+
+    HANDLE h = FindFirstFileExW(
+            widePath.c_str(),
             FindExInfoBasic, // Don't need the alternate name
             &entry, // Find data
             FindExSearchNameMatch, // Do not filter
@@ -64,11 +76,12 @@ DirEntries dirEntries(const std::string& path) {
         if (isDotOrDotDot(entry.cFileName)) continue;
 
         entries.push_back(DirEntry {
-                entry.cFileName,
-                (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY
+                converter.to_bytes(entry.cFileName),
+                (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+                    == FILE_ATTRIBUTE_DIRECTORY
                 });
 
-    } while (FindNextFileA(h, &entry));
+    } while (FindNextFileW(h, &entry));
 
     FindClose(h);
 
