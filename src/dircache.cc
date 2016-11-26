@@ -30,18 +30,18 @@ namespace {
 /**
  * Returns true if a NULL-terminated path is "." or "..".
  */
-template<typename CharT>
-bool isDotOrDotDot(const CharT* p);
+#ifdef _WIN32
 
-template<>
-bool isDotOrDotDot<char>(const char* p) {
+bool isDotOrDotDot(const wchar_t* p) {
+    return (*p++ == L'.' && (*p == L'\0' || (*p++ == L'.' && *p == L'\0')));
+}
+#else
+
+bool isDotOrDotDot(const char* p) {
     return (*p++ == '.' && (*p == '\0' || (*p++ == '.' && *p == '\0')));
 }
 
-template<>
-bool isDotOrDotDot<wchar_t>(const wchar_t* p) {
-    return (*p++ == L'.' && (*p == L'\0' || (*p++ == L'.' && *p == L'\0')));
-}
+#endif
 
 /**
  * Returns a list of the files in a directory.
@@ -56,6 +56,8 @@ DirEntries dirEntries(const std::string& path) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring widePath = converter.from_bytes(path);
 
+    // We need "*.*" at the end of the path to list everything (even file names
+    // that don't have a dot in them). Oh the insanity!
     widePath.append(L"\\*.*");
 
     WIN32_FIND_DATAW entry;
