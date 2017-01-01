@@ -20,9 +20,10 @@
 #include "path.h"
 #include "lua_path.h"
 #include "embedded.h"
-#include "glob.h"
+#include "lua_glob.h"
 #include "deps.h"
 #include "dircache.h"
+#include "threadpool.h"
 
 namespace {
 
@@ -112,10 +113,6 @@ int init(lua_State* L) {
     lua_pushcfunction(L, lua_glob);
     lua_setglobal(L, "glob");
 
-    lua_getglobal(L, "string");
-    lua_pushcfunction(L, lua_glob_match);
-    lua_setfield(L, -2, "glob");
-
     lua_getglobal(L, "package");
     lua_getfield(L, -1, "searchers");
     if (lua_type(L, -1) == LUA_TTABLE) {
@@ -178,11 +175,15 @@ int execute(lua_State* L, int argc, char** argv) {
     }
 
     ImplicitDeps deps;
+    ThreadPool pool; // TODO: Allow setting pool size from command line
     Rules rules(output);
     DirCache dirCache(&deps);
 
     lua_pushlightuserdata(L, &dirCache);
     lua_setglobal(L, "__DIR_CACHE");
+
+    lua_pushlightuserdata(L, &pool);
+    lua_setglobal(L, "__THREAD_POOL");
 
     // Register publish_input() function
     lua_pushlightuserdata(L, &deps);
