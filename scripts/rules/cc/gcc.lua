@@ -63,11 +63,12 @@ end
 --[[
     Generates the rules for compilation.
 
-    Note that gcc is always used for compilation (instead of g++).
+    Note that a C compiler is always used for compilation (instead of a C++
+    compiler).
 ]]
 local function compile(self)
     local objdir = self.objdir or ""
-    local args = table.join(self.prefix, self.toolchain.gcc, self.opts)
+    local args = table.join(self.prefix, self.toolchain.cc, self.opts)
 
     local compiler_opts = {}
 
@@ -122,9 +123,9 @@ end
     the tools in the GCC toolchain.
 ]]
 local toolchain = {
-    gcc = "gcc",
-    ["g++"] = "g++",
-    ar = "ar",
+    cc  = os.getenv("CC")  or "gcc",
+    cxx = os.getenv("CXX") or "g++",
+    ar  = "ar",
 }
 
 
@@ -210,10 +211,11 @@ end
 function common:rules()
     local objects = compile(self)
 
-    local linker = has_cpp_source(self.srcs) and "g++" or "gcc"
+    local linker = has_cpp_source(self.srcs) and
+        self.toolchain.cxx or self.toolchain.cc
 
     local output = self:path()
-    local args = table.join(self.prefix, self.toolchain[linker], self.opts)
+    local args = table.join(self.prefix, linker, self.opts)
     local linker_opts = table.join(self.linker_opts, {"-o", output})
 
     for _,dep in ipairs(self.deps) do
@@ -268,8 +270,9 @@ function _library:rules()
             display = "ar ".. self:basename(),
         }
     else
-        local linker = has_cpp_source(self.srcs) and "g++" or "gcc"
-        local args = table.join(self.prefix, self.toolchain[linker], self.opts)
+        local linker = has_cpp_source(self.srcs) and
+            self.toolchain.cxx or self.toolchain.cc
+        local args = table.join(self.prefix, linker, self.opts)
         local opts = {"-shared", "-o", output}
 
         for _,dep in ipairs(self.deps) do
